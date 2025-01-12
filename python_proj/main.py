@@ -34,9 +34,9 @@ def update_server_access(server_name: str):
     print(f"Updated data for {server_name}")
 
 
-
 @functions_framework.http
 def hello_http(request):
+    print('hello_http')
     """HTTP Cloud Function.
     Args:
         request (flask.Request): The request object.
@@ -49,14 +49,16 @@ def hello_http(request):
     request_json = request.get_json(silent=True)
     request_args = request.args
 
-    if request_json and 'name' in request_json:
-        name = request_json['name']
-    elif request_args and 'name' in request_args:
-        name = request_args['name']
+    if request_json and 'server_name' in request_json:
+        server_name = request_json['server_name']
+    elif request_args and 'server_name' in request_args:
+        server_name = request_args['server_name']
     else:
-        name = 'World'
+        server_name = 'World'
 
-    return 'Hello {}!'.format(name)
+    update_server_access(server_name)  # 기존 서버 업데이트
 
-#add_server_log('server2')
-update_server_access("server1")  # 기존 서버 업데이트
+    return 'Hello(1)-> {}!'.format(server_name)
+
+# add_server_log('server2')
+# update_server_access("server1")  # 기존 서버 업데이트
