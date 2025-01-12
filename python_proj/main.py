@@ -1,25 +1,37 @@
 import functions_framework
 import firebase_admin
 from firebase_admin import credentials, db
+from datetime import datetime
 
-def add_server_log(server_name: str):
-    print('begin')
-    try:
-        cred = credentials.Certificate("fresh-mint.json")
-        firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://fresh-mint.firebaseio.com/'
-            # Firebase Realtime Database URL
-        })
 
-        # As an admin, the app has access to read and write all data, regradless of Security Rules
-        ref = db.reference('servers/server1')
+def update_server_access(server_name: str):
+    cred = credentials.Certificate("fresh-mint.json")
+    firebase_admin.initialize_app(cred, {
+        'databaseURL': 'https://fresh-mint.firebaseio.com/'
+        # Firebase Realtime Database URL
+    })
 
-        print('Reference obtained')
-        data = ref.get()
-        print('Data retrieved:', data)
-    except Exception as e:
-        print('Error:', e)
-    print('end')
+    ref = db.reference(f'servers/{server_name}')  # 특정 서버 이름의 경로를 참조
+    print(f"Reference obtained for server: {server_name}")
+
+    data = ref.get()  # 서버 데이터를 가져옴
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 현재 시간
+    if data:
+        print(f"Existing server data: {data}")
+        if "access_date" in data:
+            data["access_date"].append(current_time)
+        else:
+            data["access_date"] = [current_time]
+        ref.update(data)
+    else:
+        print(f"No data for server: {server_name}. Initializing default data.")
+        default_data = {
+            "access_date": [current_time],
+            "description": f"This is {server_name}",
+            "name": server_name
+        }
+        ref.set(default_data)
+    print(f"Updated data for {server_name}")
 
 
 
@@ -46,4 +58,5 @@ def hello_http(request):
 
     return 'Hello {}!'.format(name)
 
-add_server_log('server1')
+#add_server_log('server2')
+update_server_access("server1")  # 기존 서버 업데이트
