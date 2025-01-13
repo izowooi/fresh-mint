@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.freshmint.firebase.FirebaseHelper
 
 
 class MainActivity : ComponentActivity() {
@@ -30,12 +31,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             FreshMintTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                ServerStatusScreen()
             }
         }
     }
@@ -122,7 +118,13 @@ fun ServerStatusScreen() {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(onClick = {
-                // refresh_1 눌렀을 때의 동작
+                val firebaseHelper = FirebaseHelper()
+
+                firebaseHelper.initFirebase()
+
+                firebaseHelper.getAccessDate { accessDateList ->
+                    println("AccessDateList: $accessDateList")
+                }
             }) {
                 Text(text = "refresh_1")
             }
