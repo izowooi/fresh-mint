@@ -129,7 +129,8 @@ fun ServerStatusScreen() {
                 Text(text = "refresh_1")
             }
             Button(onClick = {
-                // refresh_2 눌렀을 때의 동작
+                val firebaseHelper = FirebaseHelper()
+                firebaseHelper.loginFirebaseAuth()
             }) {
                 Text(text = "refresh_2")
             }
