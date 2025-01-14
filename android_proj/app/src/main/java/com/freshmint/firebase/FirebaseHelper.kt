@@ -35,15 +35,16 @@ class FirebaseHelper {
         // getInstance()를 통해 특정 DB URL 설정
         database = FirebaseDatabase.getInstance("https://fresh-mint.firebaseio.com/")
         // 해당 경로를 참조 (servers/server_1)
-        reference = database.getReference("servers").child("server1")
+        reference = database.getReference("servers")
     }
 
     /**
      * access_date 키 값 (['aaa', 'bbb'] 같은 리스트) 을 가져옴
      * @param onResult: 콜백으로 리스트 결과를 전달
      */
-    fun getAccessDate(onResult: (List<String>) -> Unit) {
-        var dbref = reference.child("access_date")
+    fun getAccessDate(serverName: String, onResult: (List<String>) -> Unit) {
+        var serverRef = reference.child(serverName)
+        var dbref = serverRef.child("access_date")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     // Realtime DB에서 가져온 값을 List<String> 형태로 변환

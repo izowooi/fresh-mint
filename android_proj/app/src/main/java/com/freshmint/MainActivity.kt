@@ -122,7 +122,7 @@ fun ServerStatusScreen() {
 
                 firebaseHelper.initFirebase()
 
-                firebaseHelper.getAccessDate { accessDateList ->
+                firebaseHelper.getAccessDate("server1") { accessDateList ->
                     println("AccessDateList: $accessDateList")
                 }
             }) {
