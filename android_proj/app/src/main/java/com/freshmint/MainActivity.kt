@@ -118,21 +118,26 @@ fun ServerStatusScreen() {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(onClick = {
-                val firebaseHelper = FirebaseHelper()
-
-                firebaseHelper.initFirebase()
-
-                firebaseHelper.getAccessDate("server1") { accessDateList ->
+                FirebaseHelper.getAccessDate("server1") { accessDateList ->
                     println("AccessDateList: $accessDateList")
                 }
             }) {
                 Text(text = "refresh_1")
             }
             Button(onClick = {
-                val firebaseHelper = FirebaseHelper()
-                firebaseHelper.loginFirebaseAuth()
+                println("on click")
+                FirebaseHelper.getServerNames { serverNames ->
+                    for (serverName in serverNames) {
+                        println("ServerName: $serverName")
+                    }
+                }
             }) {
                 Text(text = "refresh_2")
+            }
+            Button(onClick = {
+                FirebaseHelper.loginFirebaseAuth()
+            }) {
+                Text(text = "refresh_3")
             }
         }
     }
