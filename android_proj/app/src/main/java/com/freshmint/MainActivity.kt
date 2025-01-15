@@ -67,7 +67,8 @@ fun ServerStatusScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center
     ) {
         // 상단 4개의 Row: 서버 상태, 서버명, 갱신 날짜 표시
         serverList.forEach { server ->
