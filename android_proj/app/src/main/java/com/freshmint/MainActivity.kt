@@ -1,6 +1,7 @@
 package com.freshmint
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -22,10 +23,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import com.freshmint.firebase.FirebaseHelper
+import com.freshmint.model.ServerData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        const val TAG = "MainActivity"
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -34,15 +44,21 @@ class MainActivity : ComponentActivity() {
                 ServerStatusScreen()
             }
         }
-    }
-}
 
-// 임의 데이터 클래스
-data class ServerData(
-    val status: String,           // "정상" 또는 "비정상"
-    val serverName: String,       // "server1", "server2" 등
-    val updatedDateTime: String   // "2025-01-13 01:30:16" 등
-)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val serverNames = FirebaseHelper.getServerNames()
+            for (serverName in serverNames) {
+                Log.d(TAG,"ServerName: $serverName")
+            }
+
+            val accessDateList = FirebaseHelper.getAccessDate("server1")
+            for (accessDate in accessDateList) {
+                Log.d(TAG,"AccessDate: $accessDate")
+            }
+        }
+    }
+
+}
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
@@ -90,7 +106,6 @@ fun ServerStatusScreen() {
                     Color.Red
                 }
 
-                // 아이콘 표시
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
@@ -113,25 +128,24 @@ fun ServerStatusScreen() {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // 마지막 Row: refresh_1, refresh_2 버튼 2개
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(onClick = {
-                FirebaseHelper.getAccessDate("server1") { accessDateList ->
-                    println("AccessDateList: $accessDateList")
-                }
+//                FirebaseHelper.getAccessDate("server1") { accessDateList ->
+//                    println("AccessDateList: $accessDateList")
+//                }
             }) {
                 Text(text = "refresh_1")
             }
             Button(onClick = {
                 println("on click")
-                FirebaseHelper.getServerNames { serverNames ->
-                    for (serverName in serverNames) {
-                        println("ServerName: $serverName")
-                    }
-                }
+//                FirebaseHelper.getServerNames { serverNames ->
+//                    for (serverName in serverNames) {
+//                        println("ServerName: $serverName")
+//                    }
+//                }
             }) {
                 Text(text = "refresh_2")
             }

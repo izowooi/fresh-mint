@@ -3,6 +3,9 @@ package com.freshmint.firebase
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 object FirebaseHelper {
     private lateinit var database: FirebaseDatabase
@@ -35,33 +38,32 @@ object FirebaseHelper {
             }
     }
 
-
-    fun getServerNames(onResult: (List<String>) -> Unit) {
+    suspend fun getServerNames(): List<String> = suspendCancellableCoroutine { continuation ->
         reference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val serverNames = snapshot.children.map { it.key ?: "" }
-                onResult(serverNames)
+                continuation.resume(serverNames)
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("FirebaseHelper", "DB access cancelled/failed: ${error.message}")
-                onResult(emptyList())
+                continuation.resumeWithException(error.toException())
             }
         })
     }
 
-    fun getAccessDate(serverName: String, onResult: (List<String>) -> Unit) {
-        var serverRef = reference.child(serverName)
-        var dbref = serverRef.child("access_date")
+    suspend fun getAccessDate(serverName: String): List<String> = suspendCancellableCoroutine { continuation ->
+        val serverRef = reference.child(serverName)
+        serverRef.child("access_date")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val list = snapshot.getValue<List<String>>()
-                    onResult(list ?: emptyList())
+                    continuation.resume(list ?: emptyList())
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     Log.e("FirebaseHelper", "DB access cancelled/failed: ${error.message}")
-                    onResult(emptyList())
+                    continuation.resumeWithException(error.toException())
                 }
             })
     }
