@@ -32,3 +32,4 @@ google-services.json
 # Android Profiling
 *.hprof
 python_proj/fresh-mint.json
+scraping_trailer/target.json
