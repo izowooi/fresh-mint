@@ -33,3 +33,4 @@ google-services.json
 *.hprof
 python_proj/fresh-mint.json
 scraping_trailer/target.json
+scraping_trailer/target_dev.json
