@@ -6,6 +6,9 @@ import os
 import requests
 from urllib.parse import urlparse
 import time
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import json
 
 
 class BrowserManager:
@@ -98,11 +101,37 @@ class WebPage:
 
    def click_main_content(self):
        try:
-           # CSS 선택자로 찾기
-           selector = "#__next > main > div.VideoHero__Container-sc-1tldpo9-3.jwUbSK > a > div.ProgressiveImage__ImageSizeContainer-ptxr6s-0.gGktga > picture > img"
-           element = self.driver.find_element(By.CSS_SELECTOR, selector)
-           element.click()
-           return True
+           # 명시적 대기 설정
+           from selenium.webdriver.support.ui import WebDriverWait
+           from selenium.webdriver.support import expected_conditions as EC
+           from selenium.webdriver.common.by import By
+           
+           # 여러 선택자 시도
+           selectors = [
+               "#__next > main > div.VideoHero__Container-sc-1tldpo9-3.jwUbSK > a > div.ProgressiveImage__ImageSizeContainer-ptxr6s-0.gGktga > picture > img",
+               "main img[src*='hero']",  # hero 이미지를 포함하는 main 내의 이미지
+               "main a img",  # main 내의 링크 안의 이미지
+               "main .VideoHero__Container img",  # VideoHero 컨테이너 내의 이미지
+               "main picture img"  # main 내의 picture 태그 안의 이미지
+           ]
+           
+           # 각 선택자 시도
+           for selector in selectors:
+               try:
+                   print(f"선택자 시도 중: {selector}")
+                   element = WebDriverWait(self.driver, 1).until(
+                       EC.presence_of_element_located((By.CSS_SELECTOR, selector))
+                   )
+                   if element:
+                       print(f"요소를 찾았습니다: {selector}")
+                       element.click()
+                       return True
+               except:
+                   continue
+           
+           print("모든 선택자로 요소를 찾지 못했습니다.")
+           return False
+           
        except Exception as e:
            print(f"메인 컨텐츠를 찾는 중 오류 발생: {str(e)}")
            return False
@@ -170,14 +199,11 @@ class WebPage:
                print("Agree 버튼이 없습니다. 다음 단계로 진행합니다.")
 
            # 2. 메인 컨텐츠 체크 및 클릭
-           try:
-               main_element = self.driver.find_element(By.CSS_SELECTOR, "#__next > main > div.VideoHero__Container-sc-1tldpo9-3.jwUbSK > a > div.ProgressiveImage__ImageSizeContainer-ptxr6s-0.gGktga > picture > img")
-               if main_element:
-                   print("메인 컨텐츠를 찾았습니다. 클릭합니다.")
-                   main_element.click()
-                   time.sleep(2)  # 메인 컨텐츠 클릭 후 대기
-           except:
-               print("메인 컨텐츠가 없습니다. 다음 단계로 진행합니다.")
+           if not self.click_main_content():
+               print("메인 컨텐츠를 찾을 수 없습니다.")
+           else:
+               print("메인 컨텐츠를 성공적으로 클릭했습니다.")
+               time.sleep(2)  # 메인 컨텐츠 클릭 후 대기
 
            # 3. 트레일러 소스 체크 및 다운로드
            try:
@@ -197,6 +223,25 @@ class WebPage:
            print(f"프로세스 실행 중 오류 발생: {str(e)}")
            return False
 
+   def visit_and_process(self, urls):
+       try:
+           for url in urls:
+               print(f"\n{url} 사이트 방문을 시작합니다.")
+               self.driver.get(url)
+               time.sleep(3)  # 페이지 로딩 대기
+               
+               print(f"프로세스를 시작합니다.")
+               if not self.do_process():
+                   print(f"{url}에서 프로세스 실행 중 오류가 발생했습니다.")
+               
+               print(f"{url} 처리가 완료되었습니다.")
+           
+           print("\n모든 사이트 처리가 완료되었습니다.")
+           return True
+       except Exception as e:
+           print(f"사이트 방문 및 처리 중 오류 발생: {str(e)}")
+           return False
+
 
 class CommandHandler:
    def __init__(self, web_page):
@@ -211,6 +256,7 @@ class CommandHandler:
            'main': self.handle_main_content,
            'trailer': self.handle_trailer_source,
            'do_process': self.handle_do_process,
+           'do_all': self.handle_do_all,
            'quit': self.handle_quit
        }
 
@@ -276,6 +322,38 @@ class CommandHandler:
        else:
            print("메인 컨텐츠 클릭 또는 트레일러 다운로드에 실패했습니다.")
 
+   def handle_do_all(self):
+       try:
+           # target.json 파일 읽기
+           if not os.path.exists('target.json'):
+               print("target.json 파일을 찾을 수 없습니다.")
+               return True
+
+           with open('target.json', 'r') as f:
+               try:
+                   data = json.load(f)
+                   urls = data.get('sites', [])
+                   
+                   if not urls:
+                       print("target.json 파일에 sites 목록이 비어있습니다.")
+                       return True
+                       
+                   print(f"총 {len(urls)}개의 사이트를 처리합니다.")
+                   if self.web_page.visit_and_process(urls):
+                       print("모든 사이트 처리가 성공적으로 완료되었습니다.")
+                   else:
+                       print("일부 사이트 처리 중 오류가 발생했습니다.")
+                   
+               except json.JSONDecodeError:
+                   print("target.json 파일의 JSON 형식이 올바르지 않습니다.")
+                   return True
+                   
+       except Exception as e:
+           print(f"파일 처리 중 오류 발생: {str(e)}")
+           return True
+
+       return True  # quit과 동일하게 True 반환하여 프로그램 종료
+
    def handle_quit(self):
        return True
 
@@ -303,7 +381,7 @@ def main():
 
    # 메인 루프
    while True:
-       command = input("명령어를 입력하세요 (title/bar/login/loginbtn/agree/agreebtn/main/trailer/do_process/quit): ")
+       command = input("명령어를 입력하세요 (title/bar/login/loginbtn/agree/agreebtn/main/trailer/do_process/do_all/quit): ")
        if command_handler.execute_command(command):
            break
 
