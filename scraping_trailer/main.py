@@ -5,6 +5,7 @@ from selenium.common.exceptions import NoSuchWindowException, WebDriverException
 import os
 import requests
 from urllib.parse import urlparse
+import time
 
 
 class BrowserManager:
@@ -156,6 +157,46 @@ class WebPage:
            print(f"다운로드 중 오류 발생: {str(e)}")
            return False
 
+   def do_process(self):
+       try:
+           # 1. Agree 버튼 체크 및 클릭
+           try:
+               agree_element = self.driver.find_element(By.CSS_SELECTOR, "#__next > div.AgeVerificationModal__Overlay-sc-578udq-0.gheKNT > div > div.AgeVerificationModal__Modal-sc-578udq-2.khGkaQ > div > button.AgeVerificationModal__BaseButton-sc-578udq-11.AgeVerificationModal__EnterButton-sc-578udq-13.lmYncc")
+               if agree_element:
+                   print("Agree 버튼을 찾았습니다. 클릭합니다.")
+                   agree_element.click()
+                   time.sleep(2)  # Agree 클릭 후 대기
+           except:
+               print("Agree 버튼이 없습니다. 다음 단계로 진행합니다.")
+
+           # 2. 메인 컨텐츠 체크 및 클릭
+           try:
+               main_element = self.driver.find_element(By.CSS_SELECTOR, "#__next > main > div.VideoHero__Container-sc-1tldpo9-3.jwUbSK > a > div.ProgressiveImage__ImageSizeContainer-ptxr6s-0.gGktga > picture > img")
+               if main_element:
+                   print("메인 컨텐츠를 찾았습니다. 클릭합니다.")
+                   main_element.click()
+                   time.sleep(2)  # 메인 컨텐츠 클릭 후 대기
+           except:
+               print("메인 컨텐츠가 없습니다. 다음 단계로 진행합니다.")
+
+           # 3. 트레일러 소스 체크 및 다운로드
+           try:
+               trailer_element = self.driver.find_element(By.CSS_SELECTOR, "#__next > main > div > div.BoundingArea__StyledBoundingArea-u294wc-0.dgQZkG > div > div.Hero-a7asd6-0.dUZdxD > div.VideoPlayerWrapper-sc-19xo1j4-0.keBsYD > div > div > div > div.plyr__video-wrapper.plyr__video-wrapper--fixed-ratio > video > source:nth-child(5)")
+               if trailer_element:
+                   src = trailer_element.get_attribute('src')
+                   if src:
+                       print(f"트레일러 소스를 찾았습니다: {src}")
+                       if '.mp4' in src:
+                           return self.download_mp4(src)
+           except:
+               print("트레일러 소스를 찾을 수 없습니다.")
+               return False
+
+           return True
+       except Exception as e:
+           print(f"프로세스 실행 중 오류 발생: {str(e)}")
+           return False
+
 
 class CommandHandler:
    def __init__(self, web_page):
@@ -169,6 +210,7 @@ class CommandHandler:
            'agreebtn': self.handle_agree_selector,
            'main': self.handle_main_content,
            'trailer': self.handle_trailer_source,
+           'do_process': self.handle_do_process,
            'quit': self.handle_quit
        }
 
@@ -228,6 +270,12 @@ class CommandHandler:
        else:
            print("트레일러 소스를 가져오는데 실패했습니다.")
 
+   def handle_do_process(self):
+       if self.web_page.do_process():
+           print("메인 컨텐츠 클릭 및 트레일러 다운로드를 성공적으로 완료했습니다.")
+       else:
+           print("메인 컨텐츠 클릭 또는 트레일러 다운로드에 실패했습니다.")
+
    def handle_quit(self):
        return True
 
@@ -255,7 +303,7 @@ def main():
 
    # 메인 루프
    while True:
-       command = input("명령어를 입력하세요 (title/bar/login/loginbtn/agree/agreebtn/main/trailer/quit): ")
+       command = input("명령어를 입력하세요 (title/bar/login/loginbtn/agree/agreebtn/main/trailer/do_process/quit): ")
        if command_handler.execute_command(command):
            break
 
