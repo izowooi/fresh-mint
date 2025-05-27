@@ -148,7 +148,7 @@ class WebPage:
             
             if os.path.exists(filepath):
                 logger.info(f"파일이 이미 존재합니다. 스킵합니다: {filename}")
-                return True
+                return None  # 스킵된 경우
             
             logger.info(f"다운로드 시작: {filename}")
             response = requests.get(url, stream=True)
@@ -192,29 +192,51 @@ class WebPage:
                         logger.debug(f"트레일러 소스를 찾았습니다: {src}")
                         if '.mp4' in src:
                             return self.download_mp4(src)
+                        else:
+                            logger.debug("MP4 파일이 아닙니다. 스킵합니다.")
+                            return None
             except NoSuchElementException:
                 logger.debug("트레일러 소스를 찾을 수 없습니다.")
                 return False
 
-            return True
+            return None  # 트레일러를 찾지 못한 경우 스킵으로 처리
         except Exception as e:
             logger.error(f"프로세스 실행 중 오류 발생: {str(e)}")
             return False
 
     def visit_and_process(self, urls):
         try:
+            total_sites = len(urls)
+            skipped_count = 0
+            downloaded_count = 0
+            error_count = 0
+
             for url in urls:
                 logger.info(f"\n{url} 사이트 방문을 시작합니다.")
                 self.driver.get(url)
                 time.sleep(WAIT_TIMES['page_load'])
                 
                 logger.info(f"프로세스를 시작합니다.")
-                if not self.do_process():
-                    logger.error(f"{url}에서 프로세스 실행 중 오류가 발생했습니다.")
+                result = self.do_process()
                 
-                logger.info(f"{url} 처리가 완료되었습니다.")
+                if result is None:  # 스킵된 경우
+                    skipped_count += 1
+                    logger.info(f"{url} 처리가 스킵되었습니다.")
+                elif result:  # 다운로드 성공
+                    downloaded_count += 1
+                    logger.info(f"{url} 처리가 완료되었습니다.")
+                else:  # 에러 발생
+                    error_count += 1
+                    logger.error(f"{url}에서 프로세스 실행 중 오류가 발생했습니다.")
             
-            logger.info("\n모든 사이트 처리가 완료되었습니다.")
+            # 최종 통계 출력
+            logger.info("\n=== 처리 결과 통계 ===")
+            logger.info(f"총 사이트 수: {total_sites}")
+            logger.info(f"다운로드 완료: {downloaded_count}")
+            logger.info(f"스킵된 사이트: {skipped_count}")
+            logger.info(f"에러 발생: {error_count}")
+            logger.info("===================")
+            
             return True
         except Exception as e:
             logger.error(f"사이트 방문 및 처리 중 오류 발생: {str(e)}")
