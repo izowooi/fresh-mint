@@ -2,7 +2,7 @@ import os
 
 # 환경 설정
 IS_DEV = os.getenv('ENV', 'production').lower() == 'dev'
-IS_DEV = False
+IS_DEV = True  # 개발 환경으로 설정
 TARGET_FILE = 'target_dev.json' if IS_DEV else 'target.json'
 
 # 브라우저 설정
@@ -29,7 +29,7 @@ SELECTORS = {
 WAIT_TIMES = {
     'page_load': 3,
     'element_wait': 1,
-    'after_click': 2
+    'after_click': 3
 }
 
 # 로깅 설정
