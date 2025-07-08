@@ -9,6 +9,7 @@ import json
 import time
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import re
 
 from config import IS_DEV, TARGET_FILE, BROWSER_CONFIG, SELECTORS, WAIT_TIMES
 from logger import logger
@@ -242,6 +243,134 @@ class WebPage:
             logger.error(f"사이트 방문 및 처리 중 오류 발생: {str(e)}")
             return False
 
+    def get_title_image_srcset(self):
+        try:
+            # 여러 선택자 시도
+            selectors = [
+                "#__next > main > div > div.BoundingArea__StyledBoundingArea-sc-14t8hgr-0.kTqlJd > div > div.Hero-a7asd6-0.dUZdxD > div.VideoCoverWrapper-n2it0r-0.cYQYBf > div.ProgressiveImage__ImageSizeContainer-ptxr6s-0.ihEUCS > picture > img",
+                "main .Hero-a7asd6-0 .VideoCoverWrapper-n2it0r-0 picture img",  # 더 간단한 선택자
+                "main .VideoCoverWrapper picture img",  # 더 일반적인 선택자
+                "main picture img[srcset]"  # srcset 속성이 있는 이미지
+            ]
+            
+            for selector in selectors:
+                try:
+                    logger.debug(f"타이틀 이미지 선택자 시도 중: {selector}")
+                    element = WebDriverWait(self.driver, WAIT_TIMES['element_wait']).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, selector))
+                    )
+                    if element:
+                        srcset = element.get_attribute('srcset')
+                        if srcset:
+                            logger.debug(f"요소를 찾았습니다: {selector}")
+                            logger.info(f"타이틀 이미지 srcset: {srcset}")
+                            return srcset
+                        else:
+                            logger.debug(f"srcset 속성이 없습니다: {selector}")
+                except:
+                    continue
+            
+            # XPath도 시도
+            try:
+                logger.debug("XPath로 타이틀 이미지 시도 중")
+                element = WebDriverWait(self.driver, WAIT_TIMES['element_wait']).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="__next"]/main/div/div[1]/div/div[1]/div[2]/div[1]/picture/img'))
+                )
+                if element:
+                    srcset = element.get_attribute('srcset')
+                    if srcset:
+                        logger.debug("XPath로 요소를 찾았습니다")
+                        logger.info(f"타이틀 이미지 srcset: {srcset}")
+                        return srcset
+            except:
+                pass
+            
+            logger.error("타이틀 이미지를 찾을 수 없습니다.")
+            return None
+            
+        except Exception as e:
+            logger.error(f"타이틀 이미지를 찾는 중 오류 발생: {str(e)}")
+            return None
+
+    def extract_high_res_image_url(self, srcset):
+        """
+        srcset에서 _3840x2160.webp가 포함된 URL을 추출합니다.
+        """
+        try:
+            # _3840x2160.webp 패턴을 찾는 정규식
+            pattern = r'(https?://[^\s]+_3840x2160\.webp)'
+            match = re.search(pattern, srcset)
+            
+            if match:
+                url = match.group(1)
+                logger.debug(f"이미지 URL 추출: {url}")
+                return url
+            else:
+                logger.error("_3840x2160.webp 패턴을 찾을 수 없습니다.")
+                return None
+                
+        except Exception as e:
+            logger.error(f"이미지 URL 추출 중 오류 발생: {str(e)}")
+            return None
+
+    def download_title_image(self, url):
+        """
+        타이틀 이미지를 다운로드합니다.
+        """
+        try:
+            parsed_url = urlparse(url)
+            filename = os.path.basename(parsed_url.path)
+            download_dir = os.getenv('DOWNLOAD_DIR', os.path.expanduser('~/Downloads'))
+            filepath = os.path.join(download_dir, filename)
+            
+            if os.path.exists(filepath):
+                logger.info(f"이미지 파일이 이미 존재합니다. 스킵합니다: {filename}")
+                return None  # 스킵된 경우
+            
+            logger.info(f"이미지 다운로드 시작: {filename}")
+            response = requests.get(url, stream=True)
+            response.raise_for_status()
+            
+            with open(filepath, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+            
+            logger.info(f"이미지 다운로드 완료: {filepath}")
+            return True
+        except Exception as e:
+            raise DownloadException(f"이미지 다운로드 중 오류 발생: {str(e)}")
+
+    def get_and_save_title_image(self):
+        """
+        타이틀 이미지를 가져와서 저장합니다.
+        """
+        try:
+            srcset = self.get_title_image_srcset()
+            if not srcset:
+                logger.error("srcset을 가져올 수 없습니다.")
+                return False
+            
+            image_url = self.extract_high_res_image_url(srcset)
+            if not image_url:
+                logger.error("이미지 URL을 추출할 수 없습니다.")
+                return False
+            
+            result = self.download_title_image(image_url)
+            if result is None:
+                logger.info("이미지가 이미 존재하여 스킵되었습니다.")
+                return None
+            elif result:
+                logger.info("이미지 다운로드가 완료되었습니다.")
+                return True
+            else:
+                logger.error("이미지 다운로드에 실패했습니다.")
+                return False
+                
+        except Exception as e:
+            logger.error(f"타이틀 이미지 저장 중 오류 발생: {str(e)}")
+            return False
+
 class CommandHandler:
     def __init__(self, web_page):
         self.web_page = web_page
@@ -256,6 +385,8 @@ class CommandHandler:
             'trailer': self.handle_trailer_source,
             'do_process': self.handle_do_process,
             'do_all': self.handle_do_all,
+            'title_image': self.handle_title_image,
+            'save_title_image': self.handle_save_title_image,
             'quit': self.handle_quit
         }
 
@@ -352,6 +483,23 @@ class CommandHandler:
 
         return True
 
+    def handle_title_image(self):
+        srcset = self.web_page.get_title_image_srcset()
+        if srcset:
+            print("타이틀 이미지 srcset을 성공적으로 가져왔습니다.")
+            print(f"srcset: {srcset}")
+        else:
+            print("타이틀 이미지 srcset을 가져오는데 실패했습니다.")
+
+    def handle_save_title_image(self):
+        result = self.web_page.get_and_save_title_image()
+        if result is None:
+            print("타이틀 이미지가 이미 존재하여 스킵되었습니다.")
+        elif result:
+            print("타이틀 이미지를 성공적으로 저장했습니다.")
+        else:
+            print("타이틀 이미지 저장에 실패했습니다.")
+
     def handle_quit(self):
         return True
 
@@ -375,7 +523,7 @@ def main():
 
         # 메인 루프
         while True:
-            command = input("명령어를 입력하세요 (title/bar/login/loginbtn/agree/agreebtn/main/trailer/do_process/do_all/quit): ")
+            command = input("명령어를 입력하세요 (title/bar/login/loginbtn/agree/agreebtn/main/trailer/do_process/do_all/title_image/save_title_image/quit): ")
             if command_handler.execute_command(command):
                 break
 
