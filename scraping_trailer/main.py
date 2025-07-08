@@ -15,6 +15,7 @@ from config import IS_DEV, TARGET_FILE, BROWSER_CONFIG, SELECTORS, WAIT_TIMES, D
 from logger import logger
 from exceptions import ElementNotFoundException, DownloadException, BrowserException
 
+
 class BrowserManager:
     def __init__(self):
         self.user_data_dir = BROWSER_CONFIG['user_data_dir']
@@ -43,6 +44,7 @@ class BrowserManager:
             self.is_existing_session = False
 
         return self.driver, self.is_existing_session
+
 
 class WebPage:
     def __init__(self, driver):
@@ -116,9 +118,9 @@ class WebPage:
                         return True
                 except:
                     continue
-            
+
             raise ElementNotFoundException("메인 컨텐츠를 찾을 수 없습니다.")
-            
+
         except Exception as e:
             logger.error(f"메인 컨텐츠를 찾는 중 오류 발생: {str(e)}")
             return False
@@ -126,18 +128,46 @@ class WebPage:
     def get_trailer_source(self):
         try:
             # CSS 선택자로 찾기
-            selector = "#__next > main > div > div.BoundingArea__StyledBoundingArea-u294wc-0.dgQZkG > div > div.Hero-a7asd6-0.dUZdxD > div.VideoPlayerWrapper-sc-19xo1j4-0.keBsYD > div > div > div > div.plyr__video-wrapper.plyr__video-wrapper--fixed-ratio > video > source:nth-child(5)"
-            element = self.driver.find_element(By.CSS_SELECTOR, selector)
-            src = element.get_attribute('src')
-            print(f"트레일러 소스 URL: {src}")
-            
-            # .mp4 파일인 경우 다운로드 시도
-            if '.mp4' in src:
-                self.download_mp4(src)
-            
-            return True
+            selector = "#__next > main > div > div.BoundingArea__StyledBoundingArea-sc-14t8hgr-0.kTqlJd > div > div.Hero-a7asd6-0.dUZdxD > div.VideoPlayerWrapper-sc-19xo1j4-0.keBsYD > div > div > div > div.plyr__video-wrapper.plyr__video-wrapper--fixed-ratio > video > source:nth-child(5)"
+            try:
+                logger.debug(f"CSS 선택자로 트레일러 소스 시도 중: {selector}")
+                element = self.driver.find_element(By.CSS_SELECTOR, selector)
+                src = element.get_attribute('src')
+                if src:
+                    logger.debug("CSS 선택자로 트레일러 소스를 찾았습니다.")
+                    logger.info(f"트레일러 소스 URL: {src}")
+
+                    # .mp4 파일인 경우 다운로드 시도
+                    if '.mp4' in src:
+                        self.download_mp4(src)
+
+                    return True
+            except Exception as e:
+                logger.debug(f"CSS 선택자로 트레일러 소스를 찾지 못했습니다: {str(e)}")
+
+            # XPath로 백업 시도
+            try:
+                logger.debug("XPath로 트레일러 소스 시도 중")
+                xpath = '//*[@id="__next"]/main/div/div[1]/div/div[1]/div[1]/div/div/div/div[2]/video/source[5]'
+                element = self.driver.find_element(By.XPATH, xpath)
+                src = element.get_attribute('src')
+                if src:
+                    logger.debug("XPath로 트레일러 소스를 찾았습니다.")
+                    logger.info(f"트레일러 소스 URL: {src}")
+
+                    # .mp4 파일인 경우 다운로드 시도
+                    if '.mp4' in src:
+                        self.download_mp4(src)
+
+                    return True
+            except Exception as e:
+                logger.debug(f"XPath로 트레일러 소스를 찾지 못했습니다: {str(e)}")
+
+            logger.error("모든 방법으로 트레일러 소스를 찾을 수 없습니다.")
+            return False
+
         except Exception as e:
-            print(f"트레일러 소스를 찾는 중 오류 발생: {str(e)}")
+            logger.error(f"트레일러 소스를 찾는 중 오류 발생: {str(e)}")
             return False
 
     def get_download_dir(self):
@@ -155,20 +185,20 @@ class WebPage:
             filename = os.path.basename(parsed_url.path)
             download_dir = self.get_download_dir()
             filepath = os.path.join(download_dir, filename)
-            
+
             if os.path.exists(filepath):
                 logger.info(f"파일이 이미 존재합니다. 스킵합니다: {filename}")
                 return None  # 스킵된 경우
-            
+
             logger.info(f"다운로드 시작: {filename}")
             response = requests.get(url, stream=True)
             response.raise_for_status()
-            
+
             with open(filepath, 'wb') as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
-            
+
             logger.info(f"다운로드 완료: {filepath}")
             return True
         except Exception as e:
@@ -193,8 +223,22 @@ class WebPage:
                 logger.debug("메인 컨텐츠를 성공적으로 클릭했습니다.")
                 time.sleep(WAIT_TIMES['after_click'])
 
-            # 3. 트레일러 소스 체크 및 다운로드
+            # 3. 타이틀 이미지 저장 (실패해도 계속 진행)
             try:
+                logger.debug("타이틀 이미지 저장을 시도합니다.")
+                title_image_result = self.get_and_save_title_image()
+                if title_image_result is None:
+                    logger.debug("타이틀 이미지가 이미 존재하여 스킵되었습니다.")
+                elif title_image_result:
+                    logger.debug("타이틀 이미지 저장이 완료되었습니다.")
+                else:
+                    logger.debug("타이틀 이미지 저장에 실패했습니다.")
+            except Exception as e:
+                logger.debug(f"타이틀 이미지 저장 중 오류 발생: {str(e)}")
+
+            # 4. 트레일러 소스 체크 및 다운로드
+            try:
+                logger.debug("CSS 선택자로 트레일러 소스 시도 중")
                 trailer_element = self.driver.find_element(By.CSS_SELECTOR, SELECTORS['trailer_source'])
                 if trailer_element:
                     src = trailer_element.get_attribute('src')
@@ -206,8 +250,25 @@ class WebPage:
                             logger.debug("MP4 파일이 아닙니다. 스킵합니다.")
                             return None
             except NoSuchElementException:
-                logger.debug("트레일러 소스를 찾을 수 없습니다.")
-                return False
+                logger.debug("CSS 선택자로 트레일러 소스를 찾을 수 없습니다. XPath로 시도합니다.")
+
+                # XPath로 백업 시도
+                try:
+                    logger.debug("XPath로 트레일러 소스 시도 중")
+                    xpath = '//*[@id="__next"]/main/div/div[1]/div/div[1]/div[1]/div/div/div/div[2]/video/source[5]'
+                    trailer_element = self.driver.find_element(By.XPATH, xpath)
+                    if trailer_element:
+                        src = trailer_element.get_attribute('src')
+                        if src:
+                            logger.debug(f"XPath로 트레일러 소스를 찾았습니다: {src}")
+                            if '.mp4' in src:
+                                return self.download_mp4(src)
+                            else:
+                                logger.debug("MP4 파일이 아닙니다. 스킵합니다.")
+                                return None
+                except NoSuchElementException:
+                    logger.debug("XPath로도 트레일러 소스를 찾을 수 없습니다.")
+                    return False
 
             return None  # 트레일러를 찾지 못한 경우 스킵으로 처리
         except Exception as e:
@@ -217,36 +278,36 @@ class WebPage:
     def visit_and_process(self, urls):
         try:
             total_sites = len(urls)
-            skipped_count = 0
-            downloaded_count = 0
+            trailer_skipped_count = 0
+            trailer_downloaded_count = 0
             error_count = 0
 
             for url in urls:
                 logger.info(f"\n{url} 사이트 방문을 시작합니다.")
                 self.driver.get(url)
                 time.sleep(WAIT_TIMES['page_load'])
-                
+
                 logger.info(f"프로세스를 시작합니다.")
                 result = self.do_process()
-                
+
                 if result is None:  # 스킵된 경우
-                    skipped_count += 1
-                    logger.info(f"{url} 처리가 스킵되었습니다.")
+                    trailer_skipped_count += 1
+                    logger.info(f"{url} 트레일러 처리가 스킵되었습니다.")
                 elif result:  # 다운로드 성공
-                    downloaded_count += 1
-                    logger.info(f"{url} 처리가 완료되었습니다.")
+                    trailer_downloaded_count += 1
+                    logger.info(f"{url} 트레일러 처리가 완료되었습니다.")
                 else:  # 에러 발생
                     error_count += 1
                     logger.error(f"{url}에서 프로세스 실행 중 오류가 발생했습니다.")
-            
+
             # 최종 통계 출력
             logger.info("\n=== 처리 결과 통계 ===")
             logger.info(f"총 사이트 수: {total_sites}")
-            logger.info(f"다운로드 완료: {downloaded_count}")
-            logger.info(f"스킵된 사이트: {skipped_count}")
+            logger.info(f"트레일러 다운로드 완료: {trailer_downloaded_count}")
+            logger.info(f"트레일러 스킵된 사이트: {trailer_skipped_count}")
             logger.info(f"에러 발생: {error_count}")
             logger.info("===================")
-            
+
             return True
         except Exception as e:
             logger.error(f"사이트 방문 및 처리 중 오류 발생: {str(e)}")
@@ -261,7 +322,7 @@ class WebPage:
                 "main .VideoCoverWrapper picture img",  # 더 일반적인 선택자
                 "main picture img[srcset]"  # srcset 속성이 있는 이미지
             ]
-            
+
             for selector in selectors:
                 try:
                     logger.debug(f"타이틀 이미지 선택자 시도 중: {selector}")
@@ -278,12 +339,13 @@ class WebPage:
                             logger.debug(f"srcset 속성이 없습니다: {selector}")
                 except:
                     continue
-            
+
             # XPath도 시도
             try:
                 logger.debug("XPath로 타이틀 이미지 시도 중")
                 element = WebDriverWait(self.driver, WAIT_TIMES['element_wait']).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="__next"]/main/div/div[1]/div/div[1]/div[2]/div[1]/picture/img'))
+                    EC.presence_of_element_located(
+                        (By.XPATH, '//*[@id="__next"]/main/div/div[1]/div/div[1]/div[2]/div[1]/picture/img'))
                 )
                 if element:
                     srcset = element.get_attribute('srcset')
@@ -293,10 +355,10 @@ class WebPage:
                         return srcset
             except:
                 pass
-            
+
             logger.error("타이틀 이미지를 찾을 수 없습니다.")
             return None
-            
+
         except Exception as e:
             logger.error(f"타이틀 이미지를 찾는 중 오류 발생: {str(e)}")
             return None
@@ -309,7 +371,7 @@ class WebPage:
             # _3840x2160.webp 패턴을 찾는 정규식
             pattern = r'(https?://[^\s]+_3840x2160\.webp)'
             match = re.search(pattern, srcset)
-            
+
             if match:
                 url = match.group(1)
                 logger.debug(f"이미지 URL 추출: {url}")
@@ -317,7 +379,7 @@ class WebPage:
             else:
                 logger.error("_3840x2160.webp 패턴을 찾을 수 없습니다.")
                 return None
-                
+
         except Exception as e:
             logger.error(f"이미지 URL 추출 중 오류 발생: {str(e)}")
             return None
@@ -331,20 +393,20 @@ class WebPage:
             filename = os.path.basename(parsed_url.path)
             download_dir = self.get_download_dir()
             filepath = os.path.join(download_dir, filename)
-            
+
             if os.path.exists(filepath):
                 logger.info(f"이미지 파일이 이미 존재합니다. 스킵합니다: {filename}")
                 return None  # 스킵된 경우
-            
+
             logger.info(f"이미지 다운로드 시작: {filename}")
             response = requests.get(url, stream=True)
             response.raise_for_status()
-            
+
             with open(filepath, 'wb') as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
-            
+
             logger.info(f"이미지 다운로드 완료: {filepath}")
             return True
         except Exception as e:
@@ -359,12 +421,12 @@ class WebPage:
             if not srcset:
                 logger.error("srcset을 가져올 수 없습니다.")
                 return False
-            
+
             image_url = self.extract_high_res_image_url(srcset)
             if not image_url:
                 logger.error("이미지 URL을 추출할 수 없습니다.")
                 return False
-            
+
             result = self.download_title_image(image_url)
             if result is None:
                 logger.info("이미지가 이미 존재하여 스킵되었습니다.")
@@ -375,10 +437,11 @@ class WebPage:
             else:
                 logger.error("이미지 다운로드에 실패했습니다.")
                 return False
-                
+
         except Exception as e:
             logger.error(f"타이틀 이미지 저장 중 오류 발생: {str(e)}")
             return False
+
 
 class CommandHandler:
     def __init__(self, web_page):
@@ -470,21 +533,21 @@ class CommandHandler:
                 try:
                     data = json.load(f)
                     urls = data.get('sites', [])
-                    
+
                     if not urls:
                         logger.error(f"{TARGET_FILE} 파일에 sites 목록이 비어있습니다.")
                         return True
-                        
+
                     logger.info(f"총 {len(urls)}개의 사이트를 처리합니다.")
                     if self.web_page.visit_and_process(urls):
                         logger.info("모든 사이트 처리가 성공적으로 완료되었습니다.")
                     else:
                         logger.error("일부 사이트 처리 중 오류가 발생했습니다.")
-                    
+
                 except json.JSONDecodeError:
                     logger.error(f"{TARGET_FILE} 파일의 JSON 형식이 올바르지 않습니다.")
                     return True
-                
+
         except Exception as e:
             logger.error(f"파일 처리 중 오류 발생: {str(e)}")
             return True
@@ -511,6 +574,7 @@ class CommandHandler:
             print("알 수 없는 명령어입니다. 사용 가능한 명령어:", ", ".join(self.commands.keys()))
             return False
 
+
 def main():
     try:
         # 브라우저 초기화
@@ -523,7 +587,8 @@ def main():
 
         # 메인 루프
         while True:
-            command = input("명령어를 입력하세요 (title/bar/login/loginbtn/agree/agreebtn/main/trailer/do_process/do_all/title_image/quit): ")
+            command = input(
+                "명령어를 입력하세요 (title/bar/login/loginbtn/agree/agreebtn/main/trailer/do_process/do_all/title_image/quit): ")
             if command_handler.execute_command(command):
                 break
 
@@ -532,6 +597,7 @@ def main():
         return 1
 
     return 0
+
 
 if __name__ == "__main__":
     exit(main())
