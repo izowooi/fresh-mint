@@ -12,6 +12,12 @@ BROWSER_CONFIG = {
     'page_load_wait': 3
 }
 
+# 다운로드 설정
+DOWNLOAD_CONFIG = {
+    'download_dir': os.path.expanduser('~/Downloads/trailers'),  # None이면 ~/Downloads 사용
+    'default_dir': os.path.expanduser('~/Downloads')
+}
+
 # 셀렉터 설정
 SELECTORS = {
     'agree_button': "#__next > div.AgeVerificationModal__Overlay-sc-578udq-0.gheKNT > div > div.AgeVerificationModal__Modal-sc-578udq-2.khGkaQ > div > button.AgeVerificationModal__BaseButton-sc-578udq-11.AgeVerificationModal__EnterButton-sc-578udq-13.lmYncc",

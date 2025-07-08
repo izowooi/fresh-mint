@@ -11,7 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import re
 
-from config import IS_DEV, TARGET_FILE, BROWSER_CONFIG, SELECTORS, WAIT_TIMES
+from config import IS_DEV, TARGET_FILE, BROWSER_CONFIG, SELECTORS, WAIT_TIMES, DOWNLOAD_CONFIG
 from logger import logger
 from exceptions import ElementNotFoundException, DownloadException, BrowserException
 
@@ -140,11 +140,20 @@ class WebPage:
             print(f"트레일러 소스를 찾는 중 오류 발생: {str(e)}")
             return False
 
+    def get_download_dir(self):
+        """
+        다운로드 디렉토리를 가져옵니다.
+        """
+        if DOWNLOAD_CONFIG['download_dir']:
+            return DOWNLOAD_CONFIG['download_dir']
+        else:
+            return DOWNLOAD_CONFIG['default_dir']
+
     def download_mp4(self, url):
         try:
             parsed_url = urlparse(url)
             filename = os.path.basename(parsed_url.path)
-            download_dir = os.getenv('DOWNLOAD_DIR', os.path.expanduser('~/Downloads'))
+            download_dir = self.get_download_dir()
             filepath = os.path.join(download_dir, filename)
             
             if os.path.exists(filepath):
@@ -320,7 +329,7 @@ class WebPage:
         try:
             parsed_url = urlparse(url)
             filename = os.path.basename(parsed_url.path)
-            download_dir = os.getenv('DOWNLOAD_DIR', os.path.expanduser('~/Downloads'))
+            download_dir = self.get_download_dir()
             filepath = os.path.join(download_dir, filename)
             
             if os.path.exists(filepath):
