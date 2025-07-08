@@ -386,7 +386,6 @@ class CommandHandler:
             'do_process': self.handle_do_process,
             'do_all': self.handle_do_all,
             'title_image': self.handle_title_image,
-            'save_title_image': self.handle_save_title_image,
             'quit': self.handle_quit
         }
 
@@ -484,14 +483,6 @@ class CommandHandler:
         return True
 
     def handle_title_image(self):
-        srcset = self.web_page.get_title_image_srcset()
-        if srcset:
-            print("타이틀 이미지 srcset을 성공적으로 가져왔습니다.")
-            print(f"srcset: {srcset}")
-        else:
-            print("타이틀 이미지 srcset을 가져오는데 실패했습니다.")
-
-    def handle_save_title_image(self):
         result = self.web_page.get_and_save_title_image()
         if result is None:
             print("타이틀 이미지가 이미 존재하여 스킵되었습니다.")
@@ -523,7 +514,7 @@ def main():
 
         # 메인 루프
         while True:
-            command = input("명령어를 입력하세요 (title/bar/login/loginbtn/agree/agreebtn/main/trailer/do_process/do_all/title_image/save_title_image/quit): ")
+            command = input("명령어를 입력하세요 (title/bar/login/loginbtn/agree/agreebtn/main/trailer/do_process/do_all/title_image/quit): ")
             if command_handler.execute_command(command):
                 break
 
