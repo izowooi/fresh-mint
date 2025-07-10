@@ -505,26 +505,94 @@ class WebPage:
             logger.error(f"href 수집 중 오류 발생: {str(e)}")
             return []
 
-    def save_hrefs_to_json(self, hrefs, filename="collected_hrefs.json"):
+    def get_domain_name(self, url):
         """
-        수집된 href를 JSON 파일로 저장합니다.
+        URL에서 도메인명을 추출합니다.
         """
         try:
+            from urllib.parse import urlparse
+            parsed_url = urlparse(url)
+            # www. 제거하고 도메인명만 추출
+            domain = parsed_url.netloc
+            if domain.startswith('www.'):
+                domain = domain[4:]
+            return domain.replace('.', '_')  # 파일명에 사용하기 위해 점을 언더스코어로 변경
+        except Exception as e:
+            logger.error(f"도메인명 추출 중 오류 발생: {str(e)}")
+            return "unknown"
+
+    def load_existing_hrefs(self, filename):
+        """
+        기존 JSON 파일에서 href 목록을 로드합니다.
+        """
+        try:
+            if os.path.exists(filename):
+                with open(filename, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    return data.get('hrefs', []), data
+            else:
+                logger.debug(f"기존 파일이 없습니다: {filename}")
+                return [], {}
+        except Exception as e:
+            logger.error(f"기존 JSON 파일 로드 중 오류 발생: {str(e)}")
+            return [], {}
+
+    def save_hrefs_to_json(self, new_hrefs, base_url, filename=None):
+        """
+        수집된 href를 JSON 파일로 저장합니다. (중복 제거 및 병합)
+        """
+        try:
+            # 도메인명 추출
+            domain_name = self.get_domain_name(base_url)
+            
+            # 파일명 생성
+            if not filename:
+                filename = f"hrefs_{domain_name}.json"
+            
+            # 기존 데이터 로드
+            existing_hrefs, existing_data = self.load_existing_hrefs(filename)
+            
+            # 중복 제거를 위해 set 사용
+            existing_hrefs_set = set(existing_hrefs)
+            new_hrefs_set = set(new_hrefs)
+            
+            # 새로운 href만 추출 (중복 제거)
+            unique_new_hrefs = new_hrefs_set - existing_hrefs_set
+            
+            # 전체 href 목록 생성 (기존 + 새로운)
+            all_hrefs = existing_hrefs + list(unique_new_hrefs)
+            
+            # 데이터 구성
             data = {
-                "collected_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "total_count": len(hrefs),
-                "hrefs": hrefs
+                "domain": base_url,
+                "last_updated": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "total_count": len(all_hrefs),
+                "new_added_count": len(unique_new_hrefs),
+                "hrefs": all_hrefs
             }
             
+            # 기존 데이터가 있으면 생성 시간 유지
+            if existing_data and "created_at" in existing_data:
+                data["created_at"] = existing_data["created_at"]
+            else:
+                data["created_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
+            
+            # JSON 파일로 저장
             with open(filename, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
             
-            logger.info(f"href 목록이 {filename}에 저장되었습니다.")
-            return True
+            # 결과 로깅
+            if len(unique_new_hrefs) > 0:
+                logger.info(f"href 목록이 {filename}에 저장되었습니다.")
+                logger.info(f"기존: {len(existing_hrefs)}개, 새로 추가: {len(unique_new_hrefs)}개, 총: {len(all_hrefs)}개")
+            else:
+                logger.info(f"새로운 href가 없습니다. 모든 링크가 이미 수집되어 있습니다.")
+            
+            return True, len(unique_new_hrefs)
             
         except Exception as e:
             logger.error(f"JSON 파일 저장 중 오류 발생: {str(e)}")
-            return False
+            return False, 0
 
     def collect_and_save_hrefs(self, base_url):
         """
@@ -538,9 +606,14 @@ class WebPage:
                 logger.warning("수집된 href가 없습니다.")
                 return False
             
-            # JSON 파일로 저장
-            filename = f"hrefs_{int(time.time())}.json"  # 타임스탬프를 포함한 파일명
-            return self.save_hrefs_to_json(hrefs, filename)
+            # JSON 파일로 저장 (도메인별, 중복 제거)
+            success, new_count = self.save_hrefs_to_json(hrefs, base_url)
+            
+            if success:
+                logger.info(f"href 수집 완료: 총 {len(hrefs)}개 수집, {new_count}개 새로 추가")
+                return True
+            else:
+                return False
             
         except Exception as e:
             logger.error(f"href 수집 및 저장 중 오류 발생: {str(e)}")
