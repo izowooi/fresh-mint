@@ -170,35 +170,47 @@ class WebPage:
             logger.error(f"트레일러 소스를 찾는 중 오류 발생: {str(e)}")
             return False
 
-    def get_download_dir(self):
+    def get_download_dir(self, file_type='default'):
         """
         다운로드 디렉토리를 가져옵니다.
+        file_type: 'trailer', 'title_image', 'default'
         """
-        if DOWNLOAD_CONFIG['download_dir']:
-            return DOWNLOAD_CONFIG['download_dir']
+        if file_type == 'trailer':
+            return DOWNLOAD_CONFIG['trailer_dir']
+        elif file_type == 'title_image':
+            return DOWNLOAD_CONFIG['title_image_dir']
         else:
             return DOWNLOAD_CONFIG['default_dir']
+
+    def ensure_download_dir(self, directory):
+        """
+        다운로드 디렉토리가 존재하지 않으면 생성합니다.
+        """
+        if not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
+            logger.debug(f"다운로드 디렉토리 생성: {directory}")
 
     def download_mp4(self, url):
         try:
             parsed_url = urlparse(url)
             filename = os.path.basename(parsed_url.path)
-            download_dir = self.get_download_dir()
+            download_dir = self.get_download_dir('trailer')
+            self.ensure_download_dir(download_dir)
             filepath = os.path.join(download_dir, filename)
-
+            
             if os.path.exists(filepath):
                 logger.info(f"파일이 이미 존재합니다. 스킵합니다: {filename}")
                 return None  # 스킵된 경우
-
+            
             logger.info(f"다운로드 시작: {filename}")
             response = requests.get(url, stream=True)
             response.raise_for_status()
-
+            
             with open(filepath, 'wb') as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
-
+            
             logger.info(f"다운로드 완료: {filepath}")
             return True
         except Exception as e:
@@ -391,22 +403,23 @@ class WebPage:
         try:
             parsed_url = urlparse(url)
             filename = os.path.basename(parsed_url.path)
-            download_dir = self.get_download_dir()
+            download_dir = self.get_download_dir('title_image')
+            self.ensure_download_dir(download_dir)
             filepath = os.path.join(download_dir, filename)
-
+            
             if os.path.exists(filepath):
                 logger.info(f"이미지 파일이 이미 존재합니다. 스킵합니다: {filename}")
                 return None  # 스킵된 경우
-
+            
             logger.info(f"이미지 다운로드 시작: {filename}")
             response = requests.get(url, stream=True)
             response.raise_for_status()
-
+            
             with open(filepath, 'wb') as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
-
+            
             logger.info(f"이미지 다운로드 완료: {filepath}")
             return True
         except Exception as e:

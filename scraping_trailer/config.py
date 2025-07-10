@@ -14,8 +14,9 @@ BROWSER_CONFIG = {
 
 # 다운로드 설정
 DOWNLOAD_CONFIG = {
-    'download_dir': os.path.expanduser('~/Downloads/trailers'),  # None이면 ~/Downloads 사용
-    'default_dir': os.path.expanduser('~/Downloads')
+    'trailer_dir': os.path.expanduser('~/Downloads/trailer_mp4'),  # 트레일러 MP4 저장 경로
+    'title_image_dir': os.path.expanduser('~/Downloads/trailer_title'),  # 타이틀 이미지 저장 경로
+    'default_dir': os.path.expanduser('~/Downloads')  # 기본 다운로드 경로
 }
 
 # 셀렉터 설정
