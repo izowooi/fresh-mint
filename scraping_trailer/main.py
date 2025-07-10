@@ -455,6 +455,97 @@ class WebPage:
             logger.error(f"타이틀 이미지 저장 중 오류 발생: {str(e)}")
             return False
 
+    def collect_video_hrefs(self, base_url):
+        """
+        비디오 목록에서 href를 수집합니다.
+        """
+        try:
+            hrefs = []
+            
+            # 1부터 12까지 각 아이템을 체크
+            for i in range(1, 13):
+                try:
+                    # 각 그리드 아이템의 선택자
+                    item_selector = f"#__next > main > div > div.videos__SidebarAndVideoList-sc-1u2b7uh-1.kvnDtB > div.videos__StyledVideoListContainer-sc-1u2b7uh-3.lgqsma > div > div:nth-child({i})"
+                    
+                    # 아이템이 존재하는지 확인
+                    item_element = self.driver.find_element(By.CSS_SELECTOR, item_selector)
+                    if item_element:
+                        # 해당 아이템 내의 a 태그 찾기
+                        link_selector = f"{item_selector} > div > div.VideoThumbnailPreview__Container-sc-1l0c3o7-7.lhLsZD > a"
+                        try:
+                            link_element = item_element.find_element(By.CSS_SELECTOR, "div > div.VideoThumbnailPreview__Container-sc-1l0c3o7-7.lhLsZD > a")
+                            href = link_element.get_attribute('href')
+                            
+                            if href:
+                                # 상대 경로인 경우 도메인 추가
+                                if href.startswith('/'):
+                                    # base_url에서 도메인 추출
+                                    from urllib.parse import urlparse
+                                    parsed_base = urlparse(base_url)
+                                    full_url = f"{parsed_base.scheme}://{parsed_base.netloc}{href}"
+                                else:
+                                    full_url = href
+                                
+                                hrefs.append(full_url)
+                                logger.debug(f"href 수집 완료 ({i}): {full_url}")
+                            
+                        except NoSuchElementException:
+                            logger.debug(f"아이템 {i}에서 링크를 찾을 수 없습니다.")
+                            continue
+                            
+                except NoSuchElementException:
+                    logger.debug(f"아이템 {i}를 찾을 수 없습니다.")
+                    continue
+            
+            logger.info(f"총 {len(hrefs)}개의 href를 수집했습니다.")
+            return hrefs
+            
+        except Exception as e:
+            logger.error(f"href 수집 중 오류 발생: {str(e)}")
+            return []
+
+    def save_hrefs_to_json(self, hrefs, filename="collected_hrefs.json"):
+        """
+        수집된 href를 JSON 파일로 저장합니다.
+        """
+        try:
+            data = {
+                "collected_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "total_count": len(hrefs),
+                "hrefs": hrefs
+            }
+            
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            
+            logger.info(f"href 목록이 {filename}에 저장되었습니다.")
+            return True
+            
+        except Exception as e:
+            logger.error(f"JSON 파일 저장 중 오류 발생: {str(e)}")
+            return False
+
+    def collect_and_save_hrefs(self, base_url):
+        """
+        href를 수집하고 JSON 파일로 저장합니다.
+        """
+        try:
+            # href 수집
+            hrefs = self.collect_video_hrefs(base_url)
+            
+            if not hrefs:
+                logger.warning("수집된 href가 없습니다.")
+                return False
+            
+            # JSON 파일로 저장
+            filename = f"hrefs_{int(time.time())}.json"  # 타임스탬프를 포함한 파일명
+            return self.save_hrefs_to_json(hrefs, filename)
+            
+        except Exception as e:
+            logger.error(f"href 수집 및 저장 중 오류 발생: {str(e)}")
+            return False
+
 
 class CommandHandler:
     def __init__(self, web_page):
@@ -471,6 +562,8 @@ class CommandHandler:
             'do_process': self.handle_do_process,
             'do_all': self.handle_do_all,
             'title_image': self.handle_title_image,
+            'save_title_image': self.handle_save_title_image,
+            'collect_hrefs': self.handle_collect_hrefs,
             'quit': self.handle_quit
         }
 
@@ -576,6 +669,30 @@ class CommandHandler:
         else:
             print("타이틀 이미지 저장에 실패했습니다.")
 
+    def handle_save_title_image(self):
+        result = self.web_page.get_and_save_title_image()
+        if result is None:
+            print("타이틀 이미지가 이미 존재하여 스킵되었습니다.")
+        elif result:
+            print("타이틀 이미지를 성공적으로 저장했습니다.")
+        else:
+            print("타이틀 이미지 저장에 실패했습니다.")
+
+    def handle_collect_hrefs(self):
+        try:
+            # 현재 URL 가져오기
+            current_url = self.web_page.driver.current_url
+            logger.info(f"현재 페이지에서 href 수집을 시작합니다: {current_url}")
+            
+            if self.web_page.collect_and_save_hrefs(current_url):
+                print("href 수집 및 저장이 완료되었습니다.")
+            else:
+                print("href 수집 또는 저장에 실패했습니다.")
+                
+        except Exception as e:
+            logger.error(f"href 수집 처리 중 오류 발생: {str(e)}")
+            print("href 수집 중 오류가 발생했습니다.")
+
     def handle_quit(self):
         return True
 
@@ -600,8 +717,7 @@ def main():
 
         # 메인 루프
         while True:
-            command = input(
-                "명령어를 입력하세요 (title/bar/login/loginbtn/agree/agreebtn/main/trailer/do_process/do_all/title_image/quit): ")
+            command = input("명령어를 입력하세요 (title/bar/login/loginbtn/agree/agreebtn/main/trailer/do_process/do_all/title_image/save_title_image/collect_hrefs/quit): ")
             if command_handler.execute_command(command):
                 break
 
