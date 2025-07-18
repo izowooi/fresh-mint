@@ -1,0 +1,301 @@
+# Adobe Firefly 중세 판타지 한국 웹툰 스타일 공주 초상화 프롬프트
+
+## 공주
+ff-00101: Elegant portrait of a Korean woman princess, Korean webtoon art style, medieval fantasy setting, blue eyes, long black hair, red velvet gown, castle throne room background, regal elegance
+
+## 공주
+ff-00102: Graceful portrait of a Korean woman princess, Korean manhwa style, medieval fantasy, green eyes, wavy brown hair, golden silk dress, garden courtyard background, confident expression
+
+## 공주
+ff-00103: Majestic portrait of a Korean woman princess, Korean webtoon art style, medieval fantasy, amber eyes, braided blonde hair, purple satin gown, royal library background, intellectual elegance
+
+## 공주
+ff-00104: Alluring portrait of a Korean woman princess, Korean webtoon style, medieval fantasy, dark brown eyes, curly red hair, emerald dress with lace, ballroom background, sexy confidence
+
+## 공주
+ff-00105: Serene portrait of a Korean woman princess, Korean manhwa art style, medieval fantasy, grey eyes, straight silver hair, white ceremonial dress, chapel background, divine elegance
+
+## 공주
+ff-00106: Bold portrait of a Korean woman princess, Korean webtoon style, medieval fantasy, hazel eyes, short black bob, burgundy leather dress, armory background, hot warrior princess
+
+## 공주
+ff-00107: Dreamy portrait of a Korean woman princess, Korean webtoon art style, medieval fantasy, violet eyes, flowing pink hair, pastel blue gown, moonlit balcony background, romantic elegance
+
+## 공주
+ff-00108: Fierce portrait of a Korean woman princess, Korean manhwa style, medieval fantasy, golden eyes, spiky white hair, black armor dress, battlefield background, confident warrior
+
+## 공주
+ff-00109: Gentle portrait of a Korean woman princess, Korean webtoon style, medieval fantasy, soft brown eyes, twin braids, cream colored dress, flower garden background, innocent elegance
+
+## 공주
+ff-00110: Sultry portrait of a Korean woman princess, Korean webtoon art style, medieval fantasy, emerald eyes, long wavy red hair, deep red velvet gown, wine cellar background, sexy mysterious
+
+## 공주
+ff-00111: Radiant portrait of a Korean woman princess, Korean manhwa style, medieval fantasy, bright blue eyes, golden curls, yellow silk dress, sunny terrace background, cheerful confidence
+
+## 공주
+ff-00112: Mysterious portrait of a Korean woman princess, Korean webtoon style, medieval fantasy, dark purple eyes, long black hair with streaks, dark blue gown, shadowy corridor background, enigmatic elegance
+
+## 공주
+ff-00113: Vibrant portrait of a Korean woman princess, Korean webtoon art style, medieval fantasy, bright green eyes, short orange hair, colorful patchwork dress, market square background, playful hot
+
+## 공주
+ff-00114: Sophisticated portrait of a Korean woman princess, Korean manhwa style, medieval fantasy, steel grey eyes, elegant updo, navy blue formal gown, royal study background, intellectual confidence
+
+## 공주
+ff-00115: Passionate portrait of a Korean woman princess, Korean webtoon style, medieval fantasy, fiery red eyes, wild black hair, crimson dress with gold trim, fireplace background, hot intensity
+
+## 공주
+ff-00116: Ethereal portrait of a Korean woman princess, Korean webtoon art style, medieval fantasy, pale blue eyes, flowing white hair, translucent dress, misty forest background, mystical elegance
+
+## 공주
+ff-00117: Daring portrait of a Korean woman princess, Korean manhwa style, medieval fantasy, cat-like yellow eyes, messy brown hair, leather corset dress, tavern background, rebellious sexy
+
+## 공주
+ff-00118: Refined portrait of a Korean woman princess, Korean webtoon style, medieval fantasy, deep brown eyes, neat chignon, pearl-decorated dress, formal dining hall background, aristocratic elegance
+
+## 공주
+ff-00119: Wild portrait of a Korean woman princess, Korean webtoon art style, medieval fantasy, bright amber eyes, untamed curly hair, fur-trimmed dress, mountain castle background, confident savage
+
+## 공주
+ff-00120: Enchanting portrait of a Korean woman princess, Korean manhwa style, medieval fantasy, multicolored eyes, rainbow-streaked hair, magical shifting dress, enchanted tower background, mystical hot
+
+ff-00121: Seductive portrait of a beautiful princess, Korean webtoon art style, medieval fantasy, sapphire eyes, loose waves hair, silk halter neck dress, royal chamber background, sexy elegance
+
+ff-00122: Glamorous portrait of an elegant princess, Korean manhwa style, medieval fantasy, emerald eyes, sleek bob cut, sequined evening gown, grand ballroom background, confident sophistication
+
+ff-00123: Charming portrait of a smiling princess, Korean webtoon style, medieval fantasy, honey eyes, beach waves hair, cocktail mini dress, garden party background, playful hot
+
+ff-00124: Stunning portrait of a sexy princess, Korean webtoon art style, medieval fantasy, violet eyes, high ponytail, backless mermaid dress, moonlit terrace background, alluring confidence
+
+ff-00125: Radiant portrait of a beautiful princess, Korean manhwa style, medieval fantasy, azure eyes, romantic curls, off-shoulder ball gown, crystal chandelier background, elegant grace
+
+ff-00126: Captivating portrait of an elegant princess, Korean webtoon style, medieval fantasy, amber eyes, side-swept bangs, wrap dress, library alcove background, intellectual sexy
+
+ff-00127: Dazzling portrait of a smiling princess, Korean webtoon art style, medieval fantasy, forest green eyes, pixie cut, A-line cocktail dress, vineyard background, cheerful elegance
+
+ff-00128: Mesmerizing portrait of a beautiful princess, Korean manhwa style, medieval fantasy, storm grey eyes, long straight hair, strapless evening gown, opera house background, dramatic confidence
+
+ff-00129: Enchanting portrait of a sexy princess, Korean webtoon style, medieval fantasy, golden eyes, messy bun, bodycon dress, candlelit chamber background, intimate hot
+
+ff-00130: Graceful portrait of an elegant princess, Korean webtoon art style, medieval fantasy, ice blue eyes, braided crown, empire waist dress, marble hall background, regal sophistication
+
+ff-00131: Alluring portrait of a smiling princess, Korean manhwa style, medieval fantasy, chocolate eyes, shoulder-length layers, slip dress, rose garden background, romantic elegance
+
+ff-00132: Magnificent portrait of a beautiful princess, Korean webtoon style, medieval fantasy, jade eyes, voluminous curls, princess ball gown, throne room background, majestic confidence
+
+ff-00133: Bewitching portrait of a sexy princess, Korean webtoon art style, medieval fantasy, ruby eyes, tousled hair, cut-out dress, dungeon chamber background, rebellious hot
+
+ff-00134: Elegant portrait of a smiling princess, Korean manhwa style, medieval fantasy, periwinkle eyes, french twist, tea-length dress, conservatory background, gentle sophistication
+
+ff-00135: Breathtaking portrait of a beautiful princess, Korean webtoon style, medieval fantasy, copper eyes, waterfall braid, trumpet gown, cathedral background, divine elegance
+
+ff-00136: Sultry portrait of an elegant princess, Korean webtoon art style, medieval fantasy, onyx eyes, asymmetrical cut, bandage dress, wine cellar background, mysterious sexy
+
+ff-00137: Luminous portrait of a smiling princess, Korean manhwa style, medieval fantasy, mint eyes, space buns, fit-and-flare dress, sunlit courtyard background, youthful hot
+
+ff-00138: Exquisite portrait of a beautiful princess, Korean webtoon style, medieval fantasy, lavender eyes, gibson tuck, column dress, marble staircase background, timeless confidence
+
+ff-00139: Intoxicating portrait of a sexy princess, Korean webtoon art style, medieval fantasy, champagne eyes, beachy waves, sheer overlay dress, fireplace background, sensual elegance
+
+ff-00140: Gorgeous portrait of an elegant princess, Korean manhwa style, medieval fantasy, turquoise eyes, vintage victory rolls, cape dress, royal balcony background, classic sophistication
+
+ff-00141: Ethereal portrait of a beautiful princess, Korean webtoon art style, medieval fantasy, pale blue eyes, flowing white hair, translucent dress, misty forest background, mystical elegance, soft focus effect
+
+ff-00142: Dreamy portrait of an elegant princess, Korean webtoon art style, medieval fantasy, pale blue eyes, flowing white hair, translucent dress, enchanted lake background, mystical elegance, three-quarter view
+
+ff-00143: Haunting portrait of a beautiful princess, Korean webtoon art style, medieval fantasy, pale blue eyes, flowing white hair, translucent dress, ancient ruins background, mystical elegance, dramatic lighting
+
+ff-00144: Serene portrait of an elegant princess, Korean webtoon art style, medieval fantasy, pale blue eyes, flowing white hair, translucent dress, crystal cave background, mystical elegance, close-up framing
+
+ff-00145: Magical portrait of a beautiful princess, Korean webtoon art style, medieval fantasy, pale blue eyes, flowing white hair, translucent dress, floating castle background, mystical elegance, levitation pose
+
+ff-00146: Celestial portrait of an elegant princess, Korean webtoon art style, medieval fantasy, pale blue eyes, flowing white hair, translucent dress, starry night sky background, mystical elegance, reaching pose
+
+ff-00147: Mystical portrait of a beautiful princess, Korean webtoon art style, medieval fantasy, pale blue eyes, flowing white hair, translucent dress, spell circle background, mystical elegance, casting magic pose
+
+ff-00148: Otherworldly portrait of an elegant princess, Korean webtoon art style, medieval fantasy, pale blue eyes, flowing white hair, translucent dress, portal gateway background, mystical elegance, walking through light
+
+ff-00149: Enchanted portrait of a beautiful princess, Korean webtoon art style, medieval fantasy, pale blue eyes, flowing white hair, translucent dress, fairy ring background, mystical elegance, dancing pose
+
+ff-00150: Luminous portrait of an elegant princess, Korean webtoon art style, medieval fantasy, pale blue eyes, flowing white hair, translucent dress, aurora background, mystical elegance, glowing aura effect
+
+ff-00151: Daring portrait of a sexy princess, Korean manhwa style, medieval fantasy, cat-like yellow eyes, messy brown hair, leather corset dress, tavern background, rebellious confidence, leaning pose
+
+ff-00152: Wild portrait of a rebellious princess, Korean manhwa style, medieval fantasy, cat-like yellow eyes, messy brown hair, leather corset dress, underground hideout background, rebellious confidence, sword drawing pose
+
+ff-00153: Fierce portrait of a sexy princess, Korean manhwa style, medieval fantasy, cat-like yellow eyes, messy brown hair, leather corset dress, rooftop background, rebellious confidence, wind-blown hair effect
+
+ff-00154: Bold portrait of a rebellious princess, Korean manhwa style, medieval fantasy, cat-like yellow eyes, messy brown hair, leather corset dress, forge background, rebellious confidence, hammer holding pose
+
+ff-00155: Defiant portrait of a sexy princess, Korean manhwa style, medieval fantasy, cat-like yellow eyes, messy brown hair, leather corset dress, prison cell background, rebellious confidence, chains breaking effect
+
+ff-00156: Untamed portrait of a rebellious princess, Korean manhwa style, medieval fantasy, cat-like yellow eyes, messy brown hair, leather corset dress, battlefield background, rebellious confidence, victory pose
+
+ff-00157: Dangerous portrait of a sexy princess, Korean manhwa style, medieval fantasy, cat-like yellow eyes, messy brown hair, leather corset dress, dark alley background, rebellious confidence, shadow lurking pose
+
+ff-00158: Fearless portrait of a rebellious princess, Korean manhwa style, medieval fantasy, cat-like yellow eyes, messy brown hair, leather corset dress, dragon lair background, rebellious confidence, confronting beast pose
+
+ff-00159: Rogue portrait of a sexy princess, Korean manhwa style, medieval fantasy, cat-like yellow eyes, messy brown hair, leather corset dress, treasure vault background, rebellious confidence, lockpicking pose
+
+ff-00160: Savage portrait of a rebellious princess, Korean manhwa style, medieval fantasy, cat-like yellow eyes, messy brown hair, leather corset dress, wilderness camp background, rebellious confidence, fire sparks effect
+
+ff-00161: Sultry portrait of a seductive high elf courtesan, Korean webtoon art style, medieval fantasy red-light district, emerald eyes, long platinum hair, revealing silk dress, ornate brothel window, alluring pose
+
+ff-00162: Tempting portrait of an enchanting human temptress, Korean manhwa style, medieval fantasy tavern district, sapphire eyes, curly auburn hair, low-cut velvet gown, candlelit chamber, beckoning gesture
+
+ff-00163: Captivating portrait of a mysterious half-elf enchantress, Korean webtoon art style, medieval fantasy pleasure quarter, violet eyes, flowing silver hair, sheer lace dress, silk curtain background, sensual confidence
+
+ff-00164: Alluring portrait of a fallen noble lady, Korean webtoon style, medieval fantasy district, golden eyes, elegant updo, expensive corset dress, luxurious room background, aristocratic seduction
+
+ff-00165: Mesmerizing portrait of a dark elf seductress, Korean manhwa art style, medieval fantasy underworld, crimson eyes, midnight black hair, leather bondage dress, dungeon chamber, dangerous allure
+
+ff-00166: Bewitching portrait of a tiefling courtesan, Korean webtoon style, medieval fantasy red district, amber eyes with horns, wild red hair, revealing demon outfit, hellish tavern background, demonic charm
+
+ff-00167: Enticing portrait of a wood elf maiden, Korean webtoon art style, medieval fantasy nature brothel, forest green eyes, braided honey hair, leaf-pattern dress, tree house chamber, natural seduction
+
+ff-00168: Intoxicating portrait of a human barmaid, Korean manhwa style, medieval fantasy inn district, brown eyes, messy blonde hair, tavern wench outfit, ale house background, playful invitation
+
+ff-00169: Hypnotic portrait of a drow priestess, Korean webtoon art style, medieval fantasy underground, white glowing eyes, silver hair, dark ritual dress, spider web chamber, forbidden temptation
+
+ff-00170: Irresistible portrait of a fallen angel woman, Korean webtoon style, medieval fantasy heaven district, pale blue eyes, feathered white hair, torn angel robes, cloudy chamber background, divine corruption
+
+ff-00171: Provocative portrait of a vampire noble lady, Korean manhwa art style, medieval fantasy gothic quarter, blood red eyes, raven black hair, Victorian gothic dress, castle chamber, immortal seduction
+
+ff-00172: Enchanting portrait of a sea elf siren, Korean webtoon style, medieval fantasy port district, ocean blue eyes, flowing aqua hair, scale-pattern dress, underwater grotto, oceanic allure
+
+ff-00173: Magnetic portrait of a dragon-born courtesan, Korean webtoon art style, medieval fantasy exotic quarter, golden scaled eyes, horn-adorned hair, dragon scale dress, treasure chamber, draconic charm
+
+ff-00174: Spellbinding portrait of a witch enchantress, Korean manhwa style, medieval fantasy magic district, heterochromia eyes, potion-stained hair, spell-woven dress, alchemist chamber, mystical seduction
+
+ff-00175: Bewitching portrait of a centaur maiden, Korean webtoon art style, medieval fantasy forest quarter, earth brown eyes, flower-crowned hair, nature wrap dress, woodland glade, wild temptation
+
+ff-00176: Captivating portrait of a shapeshifter courtesan, Korean webtoon style, medieval fantasy illusion district, changing colored eyes, morphing hair, transforming dress, mirror chamber, shifting allure
+
+ff-00177: Alluring portrait of a phoenix woman, Korean manhwa art style, medieval fantasy fire district, flame orange eyes, burning red hair, fire-resistant dress, volcanic chamber, burning passion
+
+ff-00178: Mesmerizing portrait of a moon elf priestess, Korean webtoon style, medieval fantasy lunar quarter, silver eyes, moonbeam hair, celestial robes, moonlit balcony, nocturnal enchantment
+
+ff-00179: Tantalizing portrait of a succubus courtesan, Korean webtoon art style, medieval fantasy demon district, glowing purple eyes, shadow black hair, soul-draining dress, hellfire chamber, demonic temptation
+
+ff-00180: Irresistible portrait of a frost giant maiden, Korean manhwa style, medieval fantasy ice quarter, crystal blue eyes, frost white hair, ice crystal dress, frozen chamber, arctic seduction
+
+ff-00181: Dynamic portrait of a beautiful healer, Korean webtoon art style, medieval fantasy, emerald eyes, brown ponytail, white healer robes, temple infirmary background, caring in action pose
+
+ff-00182: Energetic portrait of an elegant physician, Korean manhwa style, medieval fantasy, sapphire eyes, neat blonde bun, medical scholar dress, herb garden background, examining patient pose
+
+ff-00183: Powerful portrait of a sexy blacksmith, Korean webtoon art style, medieval fantasy, amber eyes, sweat-glistened hair, leather apron outfit, forge background, hammer swinging pose
+
+ff-00184: Lively portrait of a smiling barmaid, Korean webtoon style, medieval fantasy, hazel eyes, curly red hair, tavern wench dress, bustling inn background, serving drinks pose
+
+ff-00185: Graceful portrait of a beautiful housewife, Korean manhwa art style, medieval fantasy, soft brown eyes, braided hair, homespun dress, cottage kitchen background, kneading bread pose
+
+ff-00186: Athletic portrait of an elegant warrior trainer, Korean webtoon style, medieval fantasy, steel grey eyes, short black hair, training outfit, practice yard background, sword teaching pose
+
+ff-00187: Vibrant portrait of a sexy merchant, Korean webtoon art style, medieval fantasy, green eyes, flowing auburn hair, trader dress, marketplace background, negotiating deal pose
+
+ff-00188: Swift portrait of a beautiful messenger, Korean manhwa style, medieval fantasy, blue eyes, windswept hair, courier outfit, castle courtyard background, running delivery pose
+
+ff-00189: Focused portrait of an elegant archer, Korean webtoon style, medieval fantasy, golden eyes, braided ponytail, hunter dress, forest clearing background, drawing bowstring pose
+
+ff-00190: Spirited portrait of a smiling stable keeper, Korean webtoon art style, medieval fantasy, brown eyes, messy blonde hair, work clothes, horse stable background, feeding horses pose
+
+ff-00191: Determined portrait of a beautiful guard, Korean manhwa style, medieval fantasy, violet eyes, military braid, armor dress, castle gate background, patrol walking pose
+
+ff-00192: Passionate portrait of a sexy cook, Korean webtoon style, medieval fantasy, warm brown eyes, chef's cap hair, kitchen apron, castle kitchen background, stirring pot pose
+
+ff-00193: Agile portrait of an elegant thief, Korean webtoon art style, medieval fantasy, cat-like eyes, hooded hair, stealth outfit, rooftop background, climbing wall pose
+
+ff-00194: Confident portrait of a beautiful captain, Korean manhwa style, medieval fantasy, ocean blue eyes, weather-beaten hair, naval uniform, ship deck background, commanding crew pose
+
+ff-00195: Industrious portrait of a smiling weaver, Korean webtoon style, medieval fantasy, gentle eyes, work-tied hair, artisan dress, textile shop background, operating loom pose
+
+ff-00196: Bold portrait of a sexy adventurer, Korean webtoon art style, medieval fantasy, adventurous eyes, travel-worn hair, explorer outfit, mountain path background, map reading pose
+
+ff-00197: Nimble portrait of an elegant acrobat, Korean manhwa style, medieval fantasy, bright eyes, performance hair, entertainer costume, circus tent background, mid-flip pose
+
+ff-00198: Steady portrait of a beautiful librarian, Korean webtoon style, medieval fantasy, intelligent eyes, scholarly bun, keeper robes, ancient library background, organizing scrolls pose
+
+ff-00199: Quick portrait of a smiling courier, Korean webtoon art style, medieval fantasy, alert eyes, practical hair, messenger outfit, city streets background, leaping obstacles pose
+
+ff-00200: Fierce portrait of an elegant duelist, Korean manhwa style, medieval fantasy, sharp eyes, elegant hair, fencing attire, noble courtyard background, sword lunging pose
+
+ff-00201: Scholarly portrait of a beautiful academic, Korean webtoon art style, medieval fantasy, intelligent eyes, neat hair, studious bikini with book accessories, ancient library background, research pose
+
+ff-00202: Authoritative portrait of an elegant guardswoman, Korean manhwa style, medieval fantasy, stern eyes, professional hair, armored bikini with badge, city patrol background, law enforcement pose
+
+ff-00203: Heroic portrait of a brave firefighter, Korean webtoon style, medieval fantasy, determined eyes, heat-resistant hair, flame-proof bikini with gear, burning building background, rescue action pose
+
+ff-00204: Prosperous portrait of a smiling merchant, Korean webtoon art style, medieval fantasy, shrewd eyes, wealthy hair, gold-trimmed bikini, marketplace background, coin counting pose
+
+ff-00205: Mystical portrait of a sexy shaman, Korean manhwa style, medieval fantasy, spiritual eyes, ritual-painted hair, tribal bikini with charms, sacred grove background, spell casting pose
+
+ff-00206: Disciplined portrait of a beautiful spearwoman, Korean webtoon style, medieval fantasy, focused eyes, warrior hair, tactical bikini with armor plates, training ground background, spear thrusting pose
+
+ff-00207: Fierce portrait of an elegant gladiator, Korean webtoon art style, medieval fantasy, battle-hardened eyes, arena hair, combat bikini with protective gear, colosseum background, fighting stance pose
+
+ff-00208: Wise portrait of a smiling alchemist, Korean manhwa style, medieval fantasy, curious eyes, experiment-stained hair, laboratory bikini with tool belt, workshop background, potion brewing pose
+
+ff-00209: Swift portrait of a beautiful scout, Korean webtoon style, medieval fantasy, alert eyes, camouflaged hair, stealth bikini with equipment, forest background, reconnaissance pose
+
+ff-00210: Noble portrait of an elegant diplomat, Korean webtoon art style, medieval fantasy, persuasive eyes, sophisticated hair, formal evening bikini, royal court background, negotiation pose
+
+ff-00211: Skilled portrait of a sexy engineer, Korean manhwa style, medieval fantasy, inventive eyes, tool-ready hair, mechanical bikini with gadgets, workshop background, construction pose
+
+ff-00212: Spiritual portrait of a beautiful priestess, Korean webtoon style, medieval fantasy, divine eyes, blessed hair, holy bikini with religious symbols, temple background, prayer pose
+
+ff-00213: Adventurous portrait of an elegant explorer, Korean webtoon art style, medieval fantasy, wandering eyes, travel-worn hair, expedition bikini with supplies, mountain background, map reading pose
+
+ff-00214: Artistic portrait of a smiling painter, Korean manhwa style, medieval fantasy, creative eyes, paint-splashed hair, artist bikini with palette, studio background, painting pose
+
+ff-00215: Musical portrait of a beautiful bard, Korean webtoon style, medieval fantasy, melodic eyes, flowing hair, performance bikini with instruments, tavern stage background, singing pose
+
+ff-00216: Magical portrait of an elegant enchantress, Korean webtoon art style, medieval fantasy, mystical eyes, spell-woven hair, arcane bikini with magical accessories, tower background, magic weaving pose
+
+ff-00217: Tactical portrait of a sexy strategist, Korean manhwa style, medieval fantasy, calculating eyes, battle-planned hair, command bikini with maps, war room background, planning pose
+
+ff-00218: Natural portrait of a beautiful druid, Korean webtoon style, medieval fantasy, earth-connected eyes, nature-touched hair, leaf bikini with animal companions, forest glade background, nature communion pose
+
+ff-00219: Regal portrait of an elegant queen, Korean webtoon art style, medieval fantasy, royal eyes, crown-adorned hair, jeweled evening bikini, throne room background, ruling pose
+
+ff-00220: Mysterious portrait of a smiling assassin, Korean manhwa style, medieval fantasy, shadow eyes, stealth hair, dark ops bikini with hidden weapons, rooftop background, infiltration pose
+
+ff-00221: Sophisticated portrait of a beautiful engineer, Korean webtoon art style, medieval fantasy, inventive eyes, precise updo, elegant black evening dress, grand workshop background, blueprint reviewing pose
+
+ff-00222: Intellectual portrait of an elegant writer, Korean manhwa style, medieval fantasy, thoughtful eyes, romantic waves, midnight blue evening gown, candlelit study background, quill writing pose
+
+ff-00223: Artistic portrait of a graceful painter, Korean webtoon style, medieval fantasy, creative eyes, paint-speckled chignon, burgundy evening dress, art gallery background, palette holding pose
+
+ff-00224: Enchanting portrait of a sexy dancer, Korean webtoon art style, medieval fantasy, passionate eyes, flowing hair, shimmering gold evening dress, ballroom stage background, graceful spinning pose
+
+ff-00225: Melodious portrait of a beautiful singer, Korean manhwa style, medieval fantasy, expressive eyes, elegant curls, deep emerald evening gown, opera house background, high note singing pose
+
+ff-00226: Innovative portrait of a smiling engineer, Korean webtoon style, medieval fantasy, brilliant eyes, neat bun, silver evening dress, mechanical hall background, gear adjusting pose
+
+ff-00227: Contemplative portrait of an elegant author, Korean webtoon art style, medieval fantasy, wise eyes, scholarly braids, plum evening dress, library alcove background, manuscript editing pose
+
+ff-00228: Inspired portrait of a beautiful artist, Korean manhwa style, medieval fantasy, dreamy eyes, messy artistic hair, rose gold evening gown, studio atelier background, canvas painting pose
+
+ff-00229: Graceful portrait of a sexy performer, Korean webtoon style, medieval fantasy, captivating eyes, performance curls, flowing pink evening dress, theater stage background, dramatic pose
+
+ff-00230: Harmonious portrait of an elegant vocalist, Korean webtoon art style, medieval fantasy, soulful eyes, concert hair, royal purple evening dress, concert hall background, microphone holding pose
+
+ff-00231: Technical portrait of a smiling inventor, Korean manhwa style, medieval fantasy, focused eyes, work-ready updo, navy evening dress, engineering chamber background, prototype testing pose
+
+ff-00232: Literary portrait of a beautiful novelist, Korean webtoon style, medieval fantasy, imaginative eyes, author's bun, wine red evening gown, writing salon background, storytelling pose
+
+ff-00233: Creative portrait of an elegant illustrator, Korean webtoon art style, medieval fantasy, artistic eyes, paintbrush-tucked hair, champagne evening dress, art studio background, sketch drawing pose
+
+ff-00234: Rhythmic portrait of a sexy choreographer, Korean manhwa style, medieval fantasy, dynamic eyes, dancer's ponytail, teal evening dress, dance studio background, movement directing pose
+
+ff-00235: Lyrical portrait of a beautiful soprano, Korean webtoon style, medieval fantasy, angelic eyes, opera hair, ivory evening gown, cathedral background, aria performing pose
+
+ff-00236: Mechanical portrait of a smiling architect, Korean webtoon art style, medieval fantasy, visionary eyes, professional chignon, steel grey evening dress, construction site background, blueprint presenting pose
+
+ff-00237: Poetic portrait of an elegant poet, Korean manhwa style, medieval fantasy, romantic eyes, flowing locks, lavender evening dress, garden pavilion background, verse reciting pose
+
+ff-00238: Vibrant portrait of a beautiful muralist, Korean webtoon style, medieval fantasy, colorful eyes, paint-streaked hair, rainbow evening gown, public square background, wall painting pose
+
+ff-00239: Expressive portrait of a sexy contemporary dancer, Korean webtoon art style, medieval fantasy, intense eyes, wild hair, black evening dress, moonlit courtyard background, interpretive dance pose
+
+ff-00240: Operatic portrait of an elegant diva, Korean manhwa style, medieval fantasy, dramatic eyes, grand curls, golden evening gown, royal opera house background, curtain call bow pose
