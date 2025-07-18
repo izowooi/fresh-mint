@@ -34,3 +34,5 @@ google-services.json
 python_proj/fresh-mint.json
 scraping_trailer/target.json
 scraping_trailer/target_dev.json
+/scraping_firefly
+gen_image_upload_proj/.env
