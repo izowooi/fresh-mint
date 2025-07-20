@@ -54,34 +54,45 @@ class SupabaseManager:
             custom_data: 추가 커스텀 데이터
         
         Returns:
-            DB 삽입용 이미지 데이터
+            DB 삽입용 이미지 데이터 (WebP URL만 사용)
         """
         if not upload_result.get('success'):
             raise ValueError("업로드 실패한 파일은 DB에 삽입할 수 없습니다")
         
         filename = upload_result['filename']
         image_info = upload_result.get('image_info', {})
+        original_data = upload_result.get('original', {})
+        webp_data = upload_result.get('webp', {})
         
         # 고유 ID 생성
         image_id = f"img_{uuid.uuid4().hex[:8]}"
         
-        # 타이틀: 파일명의 앞 20글자
-        title = filename[:20]
-        if len(filename) > 20:
+        # 타이틀: 파일명의 앞 60글자
+        title = filename[:60]
+        if len(filename) > 60:
             title += "..."
         
         # 태그 접두어 추출
         tag_prefix = self.extract_tag_prefix(filename)
+        
+        # URL은 WebP만 사용 (WebP 변환 실패시 에러 처리)
+        if webp_data.get('success') and webp_data.get('public_url'):
+            main_url = webp_data['public_url']
+            main_size = webp_data.get('file_size', 0)
+            main_content_type = 'image/webp'
+        else:
+            raise ValueError(f"WebP 변환이 실패했습니다: {filename}. DB에 저장할 수 없습니다.")
         
         # 메타데이터 구성
         metadata = {
             "width": image_info.get('width', 0),
             "height": image_info.get('height', 0),
             "format": image_info.get('format', 'unknown'),
-            "size_kb": round(upload_result.get('file_size', 0) / 1024, 2),
-            "content_type": upload_result.get('content_type', 'unknown'),
-            "r2_key": upload_result.get('r2_key', ''),
-            "uploaded_at": upload_result.get('uploaded_at', datetime.now().isoformat())
+            "size_kb": round(main_size / 1024, 2),
+            "content_type": main_content_type,
+            "has_webp": webp_data.get('success', False),
+            "original_url": original_data.get('public_url', ''),
+            "webp_url": webp_data.get('public_url', '') if webp_data.get('success') else None
         }
         
         # 커스텀 데이터 병합
@@ -91,7 +102,7 @@ class SupabaseManager:
         # DB 삽입용 데이터 구성
         image_data = {
             "id": image_id,
-            "url": upload_result['public_url'],
+            "url": main_url,
             "title": title,
             "tags": ["test", "sample"],  # 더미 태그
             "tag_prefix": tag_prefix,

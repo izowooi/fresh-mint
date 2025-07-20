@@ -5,6 +5,7 @@ from pathlib import Path
 import mimetypes
 from datetime import datetime
 import uuid
+import io
 from typing import Optional, Dict, List
 from dotenv import load_dotenv
 from PIL import Image
@@ -45,11 +46,11 @@ class R2Uploader:
     
     def upload_image(self, file_path: str, key_prefix: str = "") -> Optional[Dict]:
         """
-        단일 이미지를 R2에 업로드
+        단일 이미지를 R2에 업로드 (원본 + WebP 변환)
         
         Args:
             file_path: 업로드할 이미지 파일 경로
-            key_prefix: R2 내 폴더 경로 (예: "2024/01/")
+            key_prefix: 사용하지 않음 (호환성 유지용)
         
         Returns:
             업로드 결과 딕셔너리 또는 None (실패시)
@@ -62,33 +63,73 @@ class R2Uploader:
             
             file_path_obj = Path(file_path)
             file_name = file_path_obj.name
+            file_stem = file_path_obj.stem  # 확장자 제외한 파일명
             
-            # 고유 키 생성
-            unique_id = uuid.uuid4().hex[:8]
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            # 이미지 메타데이터 추출
+            image_info = self._get_image_info(file_path)
             
-            if key_prefix:
-                key = f"{key_prefix}/{timestamp}_{unique_id}_{file_name}"
-            else:
-                key = f"{timestamp}_{unique_id}_{file_name}"
+            # 날짜 기반 폴더 생성 (YYMMDD 형식)
+            date_folder = datetime.now().strftime("%y%m%d")
             
+            # 1. 원본 파일 업로드
+            original_key = f"original/{date_folder}/{file_name}"
+            original_result = self._upload_single_file(file_path, original_key, file_name)
+            
+            if not original_result['success']:
+                return original_result
+            
+            # 2. WebP 변환 및 업로드
+            webp_filename = f"{file_stem}.webp"
+            webp_key = f"webp/{date_folder}/{webp_filename}"
+            webp_result = self._convert_and_upload_webp(file_path, webp_key, webp_filename)
+            
+            print(f"✅ 업로드 완료: {file_name} (원본 + WebP)")
+            
+            return {
+                'success': True,
+                'local_path': file_path,
+                'filename': file_name,
+                'image_info': image_info,
+                'original': {
+                    'public_url': original_result['public_url'],
+                    'r2_key': original_key,
+                    'content_type': original_result['content_type'],
+                    'file_size': original_result['file_size']
+                },
+                'webp': {
+                    'public_url': webp_result['public_url'] if webp_result['success'] else None,
+                    'r2_key': webp_key if webp_result['success'] else None,
+                    'content_type': 'image/webp',
+                    'file_size': webp_result.get('file_size', 0),
+                    'success': webp_result['success']
+                },
+                'uploaded_at': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            print(f"❌ 업로드 실패 {file_name}: {str(e)}")
+            return {
+                'success': False,
+                'error': str(e),
+                'local_path': file_path
+            }
+    
+    def _upload_single_file(self, file_path: str, key: str, display_name: str) -> Dict:
+        """단일 파일을 R2에 업로드"""
+        try:
             # Content-Type 자동 감지
             content_type, _ = mimetypes.guess_type(file_path)
             if not content_type:
                 content_type = 'application/octet-stream'
             
-            # 이미지 메타데이터 추출
-            image_info = self._get_image_info(file_path)
-            
             # 업로드 메타데이터 설정
             upload_metadata = {
                 'upload-date': datetime.now().isoformat(),
-                'original-filename': file_name,
+                'original-filename': display_name,
                 'file-size': str(os.path.getsize(file_path))
             }
             
-            # 업로드
-            print(f"📤 업로드 중: {file_name}")
+            print(f"📤 업로드 중: {display_name} → {key}")
             
             with open(file_path, 'rb') as file:
                 self.s3_client.put_object(
@@ -102,26 +143,70 @@ class R2Uploader:
             # Public URL 생성
             public_url = f"{self.public_url}/{key}" if self.public_url else f"https://{self.bucket_name}.r2.dev/{key}"
             
-            print(f"✅ 업로드 성공: {file_name}")
-            
             return {
                 'success': True,
-                'local_path': file_path,
                 'public_url': public_url,
-                'r2_key': key,
-                'filename': file_name,
                 'content_type': content_type,
-                'file_size': os.path.getsize(file_path),
-                'image_info': image_info,
-                'uploaded_at': datetime.now().isoformat()
+                'file_size': os.path.getsize(file_path)
             }
             
         except Exception as e:
-            print(f"❌ 업로드 실패 {file_name}: {str(e)}")
             return {
                 'success': False,
-                'error': str(e),
-                'local_path': file_path
+                'error': str(e)
+            }
+    
+    def _convert_and_upload_webp(self, file_path: str, key: str, display_name: str) -> Dict:
+        """이미지를 WebP로 변환하여 업로드"""
+        try:
+            # PIL로 이미지 열기 및 WebP 변환
+            with Image.open(file_path) as img:
+                # RGB 모드로 변환 (WebP 호환성을 위해)
+                if img.mode in ('RGBA', 'LA', 'P'):
+                    # 투명도가 있는 경우 RGBA 유지
+                    if img.mode == 'P':
+                        img = img.convert('RGBA')
+                elif img.mode not in ('RGB', 'RGBA'):
+                    img = img.convert('RGB')
+                
+                # 메모리에서 WebP로 변환
+                webp_buffer = io.BytesIO()
+                img.save(webp_buffer, format='WebP', quality=85, optimize=True)
+                webp_buffer.seek(0)
+                
+                # 업로드 메타데이터 설정
+                upload_metadata = {
+                    'upload-date': datetime.now().isoformat(),
+                    'original-filename': display_name,
+                    'converted-from': Path(file_path).suffix.lower(),
+                    'file-size': str(webp_buffer.getbuffer().nbytes)
+                }
+                
+                print(f"📤 WebP 변환 업로드 중: {display_name} → {key}")
+                
+                # WebP 파일 업로드
+                self.s3_client.put_object(
+                    Bucket=self.bucket_name,
+                    Key=key,
+                    Body=webp_buffer.getvalue(),
+                    ContentType='image/webp',
+                    Metadata=upload_metadata
+                )
+                
+                # Public URL 생성
+                public_url = f"{self.public_url}/{key}" if self.public_url else f"https://{self.bucket_name}.r2.dev/{key}"
+                
+                return {
+                    'success': True,
+                    'public_url': public_url,
+                    'file_size': webp_buffer.getbuffer().nbytes
+                }
+                
+        except Exception as e:
+            print(f"⚠️ WebP 변환 실패 {display_name}: {str(e)}")
+            return {
+                'success': False,
+                'error': str(e)
             }
     
     def _get_image_info(self, file_path: str) -> Dict:
