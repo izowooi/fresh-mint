@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 설정 변수
-PROJECT_ID="fresh-mint"  # GCP 프로젝트 ID로 변경하세요
+PROJECT_ID="fresh-mint-63c38"  # GCP 프로젝트 ID로 변경하세요
 SERVICE_NAME="image-gallery-api"
 REGION="asia-northeast3"  # 서울 리전
 
