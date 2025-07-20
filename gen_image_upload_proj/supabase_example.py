@@ -203,6 +203,155 @@ def get_table_stats():
         return None
 
 
+def get_random_images(count: int = 10) -> List[Dict]:
+    """
+    DB에서 랜덤하게 이미지를 가져오는 함수
+    
+    Args:
+        count: 가져올 이미지 개수 (기본값: 10)
+    
+    Returns:
+        랜덤 이미지 리스트
+    """
+    try:
+        print(f"🎲 랜덤 이미지 {count}개 조회 중...")
+        
+        # 전체 이미지 개수 확인
+        count_response = supabase.table('images').select("*", count='exact').execute()
+        total_count = count_response.count
+        
+        if total_count == 0:
+            print("❌ DB에 이미지가 없습니다.")
+            return []
+        
+        print(f"📊 총 {total_count}개의 이미지가 DB에 있습니다.")
+        
+        # 요청 개수가 전체보다 많으면 전체 개수로 조정
+        actual_count = min(count, total_count)
+        
+        # PostgreSQL의 TABLESAMPLE을 사용한 랜덤 조회 (대용량 DB에 효율적)
+        # 하지만 Supabase에서는 제한이 있을 수 있으므로 대안 방법 사용
+        
+        # 방법 1: ORDER BY RANDOM() 사용 (소규모 DB에 적합)
+        response = supabase.table('images')\
+            .select("id, url, title, tags, tag_prefix, metadata, created_at")\
+            .order("id", foreign_table=None)\
+            .limit(actual_count * 3)\
+            .execute()  # 여유분 조회
+        
+        if not response.data:
+            print("❌ 이미지 조회 실패")
+            return []
+        
+        # Python에서 랜덤 샘플링
+        available_images = response.data
+        if len(available_images) <= actual_count:
+            selected_images = available_images
+        else:
+            selected_images = random.sample(available_images, actual_count)
+        
+        print(f"✅ 랜덤 이미지 {len(selected_images)}개 조회 완료")
+        
+        # 결과 출력
+        print("\n📋 조회된 이미지 목록:")
+        for i, img in enumerate(selected_images, 1):
+            print(f"  {i}. [{img['tag_prefix']}] {img['title']}")
+            print(f"     URL: {img['url']}")
+            print(f"     태그: {', '.join(img['tags'][:3])}{'...' if len(img['tags']) > 3 else ''}")
+            print(f"     생성일: {img['created_at']}")
+            print()
+        
+        return selected_images
+        
+    except Exception as e:
+        print(f"❌ 랜덤 이미지 조회 실패: {str(e)}")
+        return []
+
+
+def get_random_images_by_tag_prefix(tag_prefix: str, count: int = 5) -> List[Dict]:
+    """
+    특정 태그 접두어로 랜덤 이미지 조회
+    
+    Args:
+        tag_prefix: 태그 접두어 (예: "FF-00220")
+        count: 가져올 개수
+    
+    Returns:
+        해당 접두어의 랜덤 이미지 리스트
+    """
+    try:
+        print(f"🎯 태그 접두어 '{tag_prefix}'로 랜덤 이미지 {count}개 조회 중...")
+        
+        # 해당 태그 접두어로 검색
+        response = supabase.table('images')\
+            .select("id, url, title, tags, tag_prefix, metadata, created_at")\
+            .eq("tag_prefix", tag_prefix.upper())\
+            .execute()
+        
+        if not response.data:
+            print(f"❌ '{tag_prefix}' 접두어를 가진 이미지가 없습니다.")
+            return []
+        
+        available_images = response.data
+        actual_count = min(count, len(available_images))
+        
+        # 랜덤 샘플링
+        if len(available_images) <= actual_count:
+            selected_images = available_images
+        else:
+            selected_images = random.sample(available_images, actual_count)
+        
+        print(f"✅ '{tag_prefix}' 이미지 {len(selected_images)}개 조회 완료")
+        
+        return selected_images
+        
+    except Exception as e:
+        print(f"❌ 태그 접두어별 조회 실패: {str(e)}")
+        return []
+
+
+def search_images_by_tags(search_tags: List[str], limit: int = 10) -> List[Dict]:
+    """
+    태그로 이미지 검색
+    
+    Args:
+        search_tags: 검색할 태그 리스트
+        limit: 결과 제한
+    
+    Returns:
+        검색된 이미지 리스트
+    """
+    try:
+        print(f"🔍 태그 검색: {', '.join(search_tags)}")
+        
+        # PostgreSQL의 배열 연산자 사용 (태그가 포함된 이미지 검색)
+        # @> 연산자: 좌측 배열이 우측 배열의 모든 요소를 포함하는지 확인
+        response = supabase.table('images')\
+            .select("id, url, title, tags, tag_prefix, metadata, created_at")\
+            .contains("tags", search_tags)\
+            .limit(limit)\
+            .execute()
+        
+        if not response.data:
+            print(f"❌ 태그 '{', '.join(search_tags)}'를 포함한 이미지가 없습니다.")
+            return []
+        
+        print(f"✅ {len(response.data)}개의 이미지를 찾았습니다.")
+        
+        # 결과 출력
+        for i, img in enumerate(response.data, 1):
+            matching_tags = [tag for tag in img['tags'] if tag in search_tags]
+            print(f"  {i}. [{img['tag_prefix']}] {img['title']}")
+            print(f"     일치하는 태그: {', '.join(matching_tags)}")
+            print()
+        
+        return response.data
+        
+    except Exception as e:
+        print(f"❌ 태그 검색 실패: {str(e)}")
+        return []
+
+
 def main():
     """메인 실행 함수"""
     print("🚀 Supabase 이미지 DB 초기화 시작")
@@ -284,9 +433,85 @@ def insert_custom_image_example():
         print(result)
 
 
-if __name__ == "__main__":
-    # 메인 실행
-    main()
+def run_sample_queries():
+    """샘플 쿼리 실행 예시"""
+    print("\n" + "=" * 60)
+    print("🔍 샘플 쿼리 예시들")
+    print("=" * 60)
+    
+    while True:
+        print("\n📌 쿼리 메뉴:")
+        print("1. 랜덤 이미지 10개 조회")
+        print("2. 특정 태그 접두어로 조회")
+        print("3. 태그로 검색")
+        print("4. 통계 조회")
+        print("5. 종료")
+        
+        choice = input("\n선택 (1-5): ").strip()
+        
+        if choice == "1":
+            # 랜덤 이미지 조회
+            count = input("조회할 개수 (기본값: 10): ").strip()
+            count = int(count) if count.isdigit() else 10
+            get_random_images(count)
+            
+        elif choice == "2":
+            # 태그 접두어로 조회
+            prefix = input("태그 접두어 입력 (예: FF-00220): ").strip().upper()
+            if prefix:
+                get_random_images_by_tag_prefix(prefix)
+            else:
+                print("❌ 태그 접두어를 입력해주세요.")
+                
+        elif choice == "3":
+            # 태그 검색
+            tags_input = input("검색할 태그들 (쉼표로 구분): ").strip()
+            if tags_input:
+                search_tags = [tag.strip() for tag in tags_input.split(',')]
+                search_images_by_tags(search_tags)
+            else:
+                print("❌ 검색할 태그를 입력해주세요.")
+                
+        elif choice == "4":
+            # 통계 조회
+            stats = get_table_stats()
+            if stats:
+                print(f"\n📊 DB 통계:")
+                print(f"  - 총 이미지: {stats['total_images']}개")
+                print(f"  - 인기 태그 TOP 10:")
+                for tag, count in stats['top_tags']:
+                    print(f"    • {tag}: {count}개")
+                    
+        elif choice == "5":
+            print("👋 종료합니다.")
+            break
+            
+        else:
+            print("❌ 잘못된 선택입니다.")
 
-    # 커스텀 이미지 삽입 예시 (필요시 주석 해제)
-    # insert_custom_image_example()
+
+if __name__ == "__main__":
+    print("🎯 Supabase 이미지 DB 예시 스크립트")
+    print("=" * 60)
+    
+    # 메뉴 선택
+    print("\n📌 실행 메뉴:")
+    print("1. 샘플 데이터 생성 및 삽입")
+    print("2. 샘플 쿼리 실행")
+    print("3. 커스텀 이미지 삽입")
+    
+    choice = input("\n선택 (1-3): ").strip()
+    
+    if choice == "1":
+        # 기존 메인 함수 실행
+        main()
+    elif choice == "2":
+        # 샘플 쿼리 실행
+        run_sample_queries()
+    elif choice == "3":
+        # 커스텀 이미지 삽입
+        insert_custom_image_example()
+    else:
+        print("❌ 잘못된 선택입니다.")
+        print("기본적으로 샘플 쿼리를 실행합니다.")
+        run_sample_queries()
