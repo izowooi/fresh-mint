@@ -164,7 +164,7 @@ class ImageUploadFlow:
         """결과를 JSON 파일로 저장"""
         if not output_file:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_file = f"upload_results_{timestamp}.json"
+            output_file = f"upload_results\\{timestamp}.json"
         
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(result, f, indent=2, ensure_ascii=False)

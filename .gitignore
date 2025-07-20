@@ -36,3 +36,5 @@ scraping_trailer/target.json
 scraping_trailer/target_dev.json
 /scraping_firefly
 gen_image_upload_proj/.env
+/gen_image_upload_proj/upload_results
+/gen_image_upload_proj/__pycache__
