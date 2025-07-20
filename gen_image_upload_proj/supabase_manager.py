@@ -1,12 +1,12 @@
 import os
 import re
 import uuid
+import json
 from datetime import datetime
 from typing import Dict, List, Optional
 from pathlib import Path
 from dotenv import load_dotenv
 from supabase import create_client, Client
-import json
 
 # .env 파일 로드
 load_dotenv()
@@ -25,6 +25,22 @@ class SupabaseManager:
             raise ValueError("Supabase 환경변수가 설정되지 않았습니다!")
         
         self.client: Client = create_client(self.url, self.key)
+        
+        # firefly_prompt.json 로드
+        self.prompt_data = self._load_prompt_data()
+    
+    def _load_prompt_data(self) -> Dict:
+        """firefly_prompt.json 파일 로드"""
+        try:
+            prompt_file_path = Path(__file__).parent / "firefly_prompt.json"
+            with open(prompt_file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            print("⚠️ firefly_prompt.json 파일을 찾을 수 없습니다. 더미 태그를 사용합니다.")
+            return {}
+        except Exception as e:
+            print(f"⚠️ firefly_prompt.json 로드 실패: {str(e)}. 더미 태그를 사용합니다.")
+            return {}
     
     def extract_tag_prefix(self, filename: str) -> str:
         """
@@ -45,6 +61,47 @@ class SupabaseManager:
         else:
             return "UNKNOWN"
     
+    def extract_tags_from_prompt(self, tag_prefix: str) -> List[str]:
+        """
+        태그 접두어를 이용해 firefly_prompt.json에서 태그 추출
+        
+        Args:
+            tag_prefix: 태그 접두어 (예: "FF-00220")
+        
+        Returns:
+            태그 리스트 (순서 보장)
+        """
+        image_gen_tool = "firefly"
+        default_tags = [image_gen_tool]
+        
+        if not self.prompt_data:
+            return default_tags
+        
+        # 접두어를 소문자로 변환해서 찾기
+        key = tag_prefix.lower()
+        
+        # firefly_prompt.json에서 해당 키 찾기
+        if key in self.prompt_data:
+            prompt_data = self.prompt_data[key]
+            if isinstance(prompt_data, dict) and 'prompt' in prompt_data:
+                prompt_text = prompt_data['prompt']
+                
+                # 쉼표로 분리하고 정리
+                tags = default_tags
+                for tag in prompt_text.split(','):
+                    cleaned_tag = tag.strip()
+                    if cleaned_tag:  # 빈 문자열 제외
+                        tags.append(cleaned_tag)
+                tags.append(image_gen_tool)  # 도구 이름 추가
+                print(f"✅ 태그 추출 성공 ({tag_prefix}): {len(tags)}개 태그")
+                return tags
+            else:
+                print(f"⚠️ 잘못된 프롬프트 형식 ({tag_prefix}): 더미 태그 사용")
+                return default_tags
+        else:
+            print(f"⚠️ 태그 접두어를 찾을 수 없음 ({tag_prefix}): 더미 태그 사용")
+            return default_tags
+    
     def prepare_image_data(self, upload_result: Dict, custom_data: Optional[Dict] = None) -> Dict:
         """
         R2 업로드 결과를 기반으로 DB 삽입용 데이터 준비
@@ -61,6 +118,7 @@ class SupabaseManager:
         
         filename = upload_result['filename']
         image_info = upload_result.get('image_info', {})
+        is_png = upload_result.get('is_png', False)
         original_data = upload_result.get('original', {})
         webp_data = upload_result.get('webp', {})
         
@@ -74,6 +132,9 @@ class SupabaseManager:
         
         # 태그 접두어 추출
         tag_prefix = self.extract_tag_prefix(filename)
+        
+        # 프롬프트에서 실제 태그 추출
+        tags = self.extract_tags_from_prompt(tag_prefix)
         
         # URL은 WebP만 사용 (WebP 변환 실패시 에러 처리)
         if webp_data.get('success') and webp_data.get('public_url'):
@@ -90,9 +151,10 @@ class SupabaseManager:
             "format": image_info.get('format', 'unknown'),
             "size_kb": round(main_size / 1024, 2),
             "content_type": main_content_type,
-            "has_webp": webp_data.get('success', False),
-            "original_url": original_data.get('public_url', ''),
-            "webp_url": webp_data.get('public_url', '') if webp_data.get('success') else None
+            "is_png": is_png,
+            "has_original": bool(original_data.get('public_url')),
+            "original_url": original_data.get('public_url', '') if is_png else None,
+            "webp_url": webp_data.get('public_url', '')
         }
         
         # 커스텀 데이터 병합
@@ -104,7 +166,7 @@ class SupabaseManager:
             "id": image_id,
             "url": main_url,
             "title": title,
-            "tags": ["test", "sample"],  # 더미 태그
+            "tags": tags,  # 프롬프트에서 추출한 실제 태그
             "tag_prefix": tag_prefix,
             "metadata": metadata
         }

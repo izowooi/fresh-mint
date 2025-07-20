@@ -70,41 +70,65 @@ class R2Uploader:
             
             # 날짜 기반 폴더 생성 (YYMMDD 형식)
             date_folder = datetime.now().strftime("%y%m%d")
+            file_ext = file_path_obj.suffix.lower()
             
-            # 1. 원본 파일 업로드
-            original_key = f"original/{date_folder}/{file_name}"
-            original_result = self._upload_single_file(file_path, original_key, file_name)
+            # PNG 파일인지 확인
+            is_png = file_ext == '.png'
             
-            if not original_result['success']:
-                return original_result
+            # 1. 원본 파일 업로드 (PNG만)
+            original_result = None
+            if is_png:
+                original_key = f"original/{date_folder}/{file_name}"
+                original_result = self._upload_single_file(file_path, original_key, file_name)
+                
+                if not original_result['success']:
+                    return original_result
+                
+                print(f"✅ PNG 원본 업로드: {file_name}")
+            else:
+                print(f"⏭️  원본 업로드 생략 ({file_ext}): {file_name}")
             
-            # 2. WebP 변환 및 업로드
+            # 2. WebP 변환 및 업로드 (모든 파일)
             webp_filename = f"{file_stem}.webp"
             webp_key = f"webp/{date_folder}/{webp_filename}"
             webp_result = self._convert_and_upload_webp(file_path, webp_key, webp_filename)
             
-            print(f"✅ 업로드 완료: {file_name} (원본 + WebP)")
+            if not webp_result['success']:
+                return webp_result  # WebP 실패시 에러 반환
             
-            return {
+            upload_status = "WebP"
+            if is_png:
+                upload_status = "원본 + WebP"
+            
+            print(f"✅ 업로드 완료: {file_name} ({upload_status})")
+            
+            # 반환 데이터 구성
+            result_data = {
                 'success': True,
                 'local_path': file_path,
                 'filename': file_name,
                 'image_info': image_info,
-                'original': {
-                    'public_url': original_result['public_url'],
-                    'r2_key': original_key,
-                    'content_type': original_result['content_type'],
-                    'file_size': original_result['file_size']
-                },
+                'is_png': is_png,
                 'webp': {
-                    'public_url': webp_result['public_url'] if webp_result['success'] else None,
-                    'r2_key': webp_key if webp_result['success'] else None,
+                    'public_url': webp_result['public_url'],
+                    'r2_key': webp_key,
                     'content_type': 'image/webp',
                     'file_size': webp_result.get('file_size', 0),
                     'success': webp_result['success']
                 },
                 'uploaded_at': datetime.now().isoformat()
             }
+            
+            # PNG인 경우에만 원본 정보 추가
+            if is_png and original_result:
+                result_data['original'] = {
+                    'public_url': original_result['public_url'],
+                    'r2_key': original_key,
+                    'content_type': original_result['content_type'],
+                    'file_size': original_result['file_size']
+                }
+            
+            return result_data
             
         except Exception as e:
             print(f"❌ 업로드 실패 {file_name}: {str(e)}")
@@ -161,17 +185,29 @@ class R2Uploader:
         try:
             # PIL로 이미지 열기 및 WebP 변환
             with Image.open(file_path) as img:
+                # 원본 크기 정보
+                original_width, original_height = img.size
+                
+                # 새로운 크기 계산 (각각 절반)
+                new_width = original_width // 2
+                new_height = original_height // 2
+                
+                print(f"🔄 크기 조정: {original_width}x{original_height} → {new_width}x{new_height}")
+                
+                # 크기 조정 (고품질 리샘플링)
+                img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+                
                 # RGB 모드로 변환 (WebP 호환성을 위해)
-                if img.mode in ('RGBA', 'LA', 'P'):
+                if img_resized.mode in ('RGBA', 'LA', 'P'):
                     # 투명도가 있는 경우 RGBA 유지
-                    if img.mode == 'P':
-                        img = img.convert('RGBA')
-                elif img.mode not in ('RGB', 'RGBA'):
-                    img = img.convert('RGB')
+                    if img_resized.mode == 'P':
+                        img_resized = img_resized.convert('RGBA')
+                elif img_resized.mode not in ('RGB', 'RGBA'):
+                    img_resized = img_resized.convert('RGB')
                 
                 # 메모리에서 WebP로 변환
                 webp_buffer = io.BytesIO()
-                img.save(webp_buffer, format='WebP', quality=85, optimize=True)
+                img_resized.save(webp_buffer, format='WebP', quality=85, optimize=True)
                 webp_buffer.seek(0)
                 
                 # 업로드 메타데이터 설정
@@ -179,7 +215,10 @@ class R2Uploader:
                     'upload-date': datetime.now().isoformat(),
                     'original-filename': display_name,
                     'converted-from': Path(file_path).suffix.lower(),
-                    'file-size': str(webp_buffer.getbuffer().nbytes)
+                    'file-size': str(webp_buffer.getbuffer().nbytes),
+                    'original-size': f"{original_width}x{original_height}",
+                    'resized-to': f"{new_width}x{new_height}",
+                    'resize-ratio': '0.5x'
                 }
                 
                 print(f"📤 WebP 변환 업로드 중: {display_name} → {key}")
