@@ -17,19 +17,50 @@ pip install -r requirements.txt
 # Supabase 설정
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your_anon_key_here
+
+# Cloudflare R2 설정
+R2_ACCESS_KEY_ID=your_access_key_id
+R2_SECRET_ACCESS_KEY=your_secret_access_key
+R2_ACCOUNT_ID=your_account_id
+R2_BUCKET=your_bucket_name
+R2_PUBLIC_URL=https://your-bucket.r2.dev
+
+# 기타 설정 (선택사항)
+SAMPLE_COUNT=1
+BATCH_SIZE=50
 ```
 
 ## 사용법
 
 
-### 1. dotenv 테스트
+### 1. 메인 플로우 실행 (권장)
 ```bash
-python dotenv_example.py
+# 기본 폴더 ./images 사용
+python main_flow.py
+
+# 특정 폴더 지정
+python main_flow.py --folder /path/to/images
+
+# R2 경로와 배치 크기 지정
+python main_flow.py --folder ./photos --r2-prefix 2024/01 --batch-size 20
+
+# 대화형 모드
+python main_flow.py --interactive
+
+# 도움말 보기
+python main_flow.py --help
 ```
 
-### 2. supabase 테스트
+### 2. 개별 모듈 테스트
 ```bash
+# Supabase 연결 테스트
+python dotenv_example.py
+
+# Supabase 데이터 삽입 테스트
 python supabase_example.py
+
+# R2 업로드 테스트
+python cloudflare_r2_example.py
 ```
 
 ## 주요 기능
@@ -40,8 +71,17 @@ python supabase_example.py
 
 ## 파일 구조
 
-- `supabase_example.py`: supabase 예제
+### 메인 스크립트
+- `main_flow.py`: **메인 플로우** - 이미지 업로드 및 DB 저장
+- `r2_uploader.py`: Cloudflare R2 업로드 모듈
+- `supabase_manager.py`: Supabase DB 관리 모듈
+
+### 예시 및 테스트
+- `supabase_example.py`: Supabase 테스트 스크립트
+- `cloudflare_r2_example.py`: R2 업로드 테스트 스크립트
 - `dotenv_example.py`: dotenv 사용 예시
+
+### 설정 파일
 - `requirements.txt`: 필요한 라이브러리 목록
 - `.env`: 환경변수 설정 (직접 생성 필요)
 

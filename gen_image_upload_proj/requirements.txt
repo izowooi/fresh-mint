@@ -1,3 +1,4 @@
 supabase==2.16.0
 python-dotenv==1.1.1
 boto3==1.39.8
+Pillow==11.3.0
