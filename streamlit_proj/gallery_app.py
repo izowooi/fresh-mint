@@ -6,6 +6,7 @@ from typing import List, Dict
 import time
 from concurrent.futures import ThreadPoolExecutor
 import json
+from datetime import datetime
 
 # 페이지 설정
 st.set_page_config(
@@ -16,7 +17,7 @@ st.set_page_config(
 )
 
 # API 엔드포인트
-API_URL = "https://image-gallery-api-uxkejyaf6q-du.a.run.app/random-images"
+API_URL = "https://image-gallery-api-513122275637.asia-northeast3.run.app/random-images"
 
 # CSS 스타일 정의
 st.markdown("""
@@ -178,13 +179,46 @@ def create_image_card(image_data: Dict, index: int):
 
            # 이미지 제목
            st.caption(f"**{image_data['title']}**")
+           
+           # 설명 표시 (새로 추가)
+           if image_data.get('description'):
+               st.caption(f"📝 {image_data['description']}")
 
            # 메타데이터 표시 (접을 수 있는 형태)
            with st.expander("상세 정보", expanded=False):
                st.write(f"**ID:** {image_data['id']}")
+               
+               # 태그 프리픽스 표시 (새로 추가)
+               if image_data.get('tag_prefix'):
+                   st.write(f"**태그 프리픽스:** {image_data['tag_prefix']}")
+               
                st.write(f"**크기:** {image_data['metadata']['width']}x{image_data['metadata']['height']} px")
                st.write(f"**포맷:** {image_data['metadata']['format'].upper()}")
                st.write(f"**파일 크기:** {image_data['metadata']['size_kb']} KB")
+               
+               # WebP URL 표시 (새로 추가)
+               if image_data['metadata'].get('webp_url'):
+                   st.write(f"**WebP URL:** [링크]({image_data['metadata']['webp_url']})")
+               
+               # 원본 이미지 정보 (새로 추가)
+               if image_data['metadata'].get('has_original'):
+                   if image_data['metadata'].get('original_url'):
+                       st.write(f"**원본 이미지:** [링크]({image_data['metadata']['original_url']})")
+                   else:
+                       st.write("**원본 이미지:** 사용 가능")
+               else:
+                   st.write("**원본 이미지:** 없음")
+               
+               # 생성 날짜 표시 (새로 추가)
+               if image_data.get('created_at'):
+                   try:
+                       # ISO 형식의 날짜를 파싱
+                       created_date = datetime.fromisoformat(image_data['created_at'].replace('Z', '+00:00'))
+                       formatted_date = created_date.strftime('%Y년 %m월 %d일 %H:%M')
+                       st.write(f"**생성 날짜:** {formatted_date}")
+                   except:
+                       st.write(f"**생성 날짜:** {image_data['created_at']}")
+               
                st.write(f"**태그:** {', '.join(image_data['tags'])}")
 
        except Exception as e:
@@ -214,7 +248,20 @@ if st.session_state.initial_load or st.session_state.load_more_clicked:
            st.session_state.initial_load = False
            st.session_state.load_more_clicked = False
            st.session_state.loading = False
-           st.success(f"✅ {len(data['images'])}개의 이미지를 불러왔습니다!")
+           
+           # 새로운 응답 구조 정보 표시
+           success_message = f"✅ {len(data['images'])}개의 이미지를 불러왔습니다!"
+           if data.get('count'):
+               success_message += f" (서버에서 {data['count']}개 반환)"
+           if data.get('source'):
+               success_message += f" [출처: {data['source']}]"
+           
+           st.success(success_message)
+           
+           # 타임스탬프 정보 표시 (디버그 정보)
+           if data.get('timestamp'):
+               st.caption(f"🕒 서버 응답 시각: {data['timestamp']}")
+           
            time.sleep(1)
            st.rerun()
 
@@ -261,7 +308,7 @@ with st.sidebar:
    st.markdown("---")
    if st.button("🏥 API 상태 확인"):
        try:
-           ping_response = requests.get("https://image-gallery-api-uxkejyaf6q-du.a.run.app/ping", timeout=5)
+           ping_response = requests.get("https://image-gallery-api-513122275637.asia-northeast3.run.app/ping", timeout=5)
            if ping_response.status_code == 200:
                st.success("✅ API 정상 작동 중")
                st.json(ping_response.json())
