@@ -38,3 +38,6 @@ scraping_trailer/target_dev.json
 gen_image_upload_proj/.env
 /gen_image_upload_proj/upload_results
 /gen_image_upload_proj/__pycache__
+prompt_extractor/uv.lock
+/prompt_extractor/output
+/prompt_extractor/__pycache__
