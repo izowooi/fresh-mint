@@ -147,8 +147,9 @@ class WebPage:
 
             # XPath로 백업 시도
             try:
-                logger.debug("XPath로 트레일러 소스 시도 중")
+                logger.debug("XPath로 트레일러 소스 시도 중.")
                 xpath = '//*[@id="__next"]/main/div/div[1]/div/div[1]/div[1]/div/div/div/div[2]/video/source[5]'
+                xpath = '/html/body/div[2]/main/div/div[1]/div/div[1]/div[1]/div/div/div/div[2]/video/source[5]'
                 element = self.driver.find_element(By.XPATH, xpath)
                 src = element.get_attribute('src')
                 if src:
@@ -222,11 +223,22 @@ class WebPage:
             try:
                 agree_element = self.driver.find_element(By.CSS_SELECTOR, SELECTORS['agree_button'])
                 if agree_element:
-                    logger.debug("Agree 버튼을 찾았습니다. 클릭합니다.")
+                    logger.debug("기본 선택자로 Agree 버튼을 찾았습니다. 클릭합니다.")
                     agree_element.click()
                     time.sleep(WAIT_TIMES['after_click'])
             except NoSuchElementException:
-                logger.debug("Agree 버튼이 없습니다. 다음 단계로 진행합니다.")
+                logger.debug("기본 선택자로 Agree 버튼을 찾을 수 없습니다. XPath로 시도합니다.")
+                
+                # XPath로 백업 시도
+                try:
+                    xpath = '//*[@id="__next"]/div[1]/div/div[2]/div/button[2]'
+                    agree_element = self.driver.find_element(By.XPATH, xpath)
+                    if agree_element:
+                        logger.debug("XPath로 Agree 버튼을 찾았습니다. 클릭합니다.")
+                        agree_element.click()
+                        time.sleep(WAIT_TIMES['after_click'])
+                except NoSuchElementException:
+                    logger.debug("모든 방법으로 Agree 버튼을 찾을 수 없습니다. 다음 단계로 진행합니다.")
 
             # 2. 메인 컨텐츠 체크 및 클릭
             if not self.click_main_content():
@@ -266,7 +278,7 @@ class WebPage:
 
                 # XPath로 백업 시도
                 try:
-                    logger.debug("XPath로 트레일러 소스 시도 중")
+                    logger.debug("XPath로 트레일러 소스 시도 중..")
                     xpath = '//*[@id="__next"]/main/div/div[1]/div/div[1]/div[1]/div/div/div/div[2]/video/source[5]'
                     trailer_element = self.driver.find_element(By.XPATH, xpath)
                     if trailer_element:
