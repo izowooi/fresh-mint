@@ -63,7 +63,7 @@ def generate_sample_data(count: int = 100) -> List[Dict]:
     tag_prefixes = ["FD-00001", "FD-00002", "FD-00003", "FD-00004", "FD-00005"]
 
     # R2 URL 템플릿
-    r2_base_url = "https://pub-faf21c880e254e7483b84cb14bb8854e.r2.dev"
+    r2_base_url = "https://genimage.zowoo.uk"
 
     sample_data = []
 
@@ -411,7 +411,7 @@ def insert_custom_image_example():
     """커스텀 이미지 삽입 예시"""
     custom_image = {
         "id": f"custom_{uuid.uuid4().hex[:8]}",
-        "url": "https://pub-faf21c880e254e7483b84cb14bb8854e.r2.dev/my_special_image.jpg",
+        "url": "https://genimage.zowoo.uk/my_special_image.jpg",
         "title": "My Special Image",
         "tags": ["special", "custom", "featured"],
         "tag_prefix": "CUSTOM",
