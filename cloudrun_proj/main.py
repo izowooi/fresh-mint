@@ -81,6 +81,7 @@ def initialize_firebase_app() -> bool:
 
 # R2 이미지 URL (폴백용)
 R2_IMAGE_URL = "https://pub-faf21c880e254e7483b84cb14bb8854e.r2.dev/Firefly_ff-00198%20Steady%20portrait%20of%20a%20be%20168550%20uqj.jpg"
+DEFAULT_NOTIFICATION_IMAGE_URL = "https://genimage.zowoo.uk/webp/250722/Firefly_ff-00152%20Wild%20portrait%20of%20a%20rebe%20531327%20Raj.webp"
 
 
 @app.on_event("startup")
@@ -137,15 +138,39 @@ async def handle_pubsub_and_notify_fcm(request: Request):
         notif_title = (payload.get("title") if isinstance(payload, dict) else None) or "Notification from Cloud Run"
         notif_body = (payload.get("body") if isinstance(payload, dict) else None) or "A new event has been received and processed."
 
+        # 이미지 URL은 요청값 우선, 없으면 기본값 사용
+        image_url = (payload.get("image_url") if isinstance(payload, dict) else None) or DEFAULT_NOTIFICATION_IMAGE_URL
+
         message = messaging.Message(
             notification=messaging.Notification(
                 title=notif_title,
                 body=notif_body,
+                image=image_url,
             ),
             data={
                 "event": "pubsub_received",
                 "timestamp": datetime.utcnow().isoformat(),
             },
+            android=messaging.AndroidConfig(
+                notification=messaging.AndroidNotification(
+                    image=image_url,
+                )
+            ),
+            apns=messaging.APNSConfig(
+                payload=messaging.APNSPayload(
+                    aps=messaging.Aps(
+                        mutable_content=True,
+                    )
+                ),
+                fcm_options=messaging.APNSFCMOptions(
+                    image=image_url,
+                )
+            ),
+            webpush=messaging.WebpushConfig(
+                notification=messaging.WebpushNotification(
+                    image=image_url,
+                )
+            ),
             topic=topic_name,
         )
         message_id = messaging.send(message)
