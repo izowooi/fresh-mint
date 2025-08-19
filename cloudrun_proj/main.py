@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query, HTTPException
+from fastapi import FastAPI, Query, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Optional
 import random
@@ -6,6 +6,8 @@ from datetime import datetime
 import os
 from supabase import create_client, Client
 import logging
+import firebase_admin
+from firebase_admin import credentials, messaging
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -53,6 +55,30 @@ def get_supabase_client() -> Optional[Client]:
     return supabase_client
 
 
+# Firebase Admin 초기화
+def initialize_firebase_app() -> bool:
+    """Firebase Admin SDK 초기화. 이미 초기화되어 있으면 True 반환"""
+    try:
+        # 이미 초기화된 경우
+        if firebase_admin._apps:
+            return True
+
+        # 우선순위: 명시적 경로(FIREBASE_CREDENTIALS_PATH) → 기본 애플리케이션 자격증명(GOOGLE_APPLICATION_CREDENTIALS 또는 런타임 SA)
+        credentials_path = os.environ.get("FIREBASE_CREDENTIALS_PATH")
+        if credentials_path:
+            cred = credentials.Certificate(credentials_path)
+            firebase_admin.initialize_app(cred)
+        else:
+            # Cloud Run에서는 기본 서비스 계정으로 ADC 사용 가능
+            firebase_admin.initialize_app()
+
+        logger.info("Firebase Admin 초기화 성공")
+        return True
+    except Exception as e:
+        logger.error(f"Firebase Admin 초기화 실패: {str(e)}")
+        return False
+
+
 # R2 이미지 URL (폴백용)
 R2_IMAGE_URL = "https://pub-faf21c880e254e7483b84cb14bb8854e.r2.dev/Firefly_ff-00198%20Steady%20portrait%20of%20a%20be%20168550%20uqj.jpg"
 
@@ -68,6 +94,9 @@ async def startup_event():
             logger.info("Supabase 연결 테스트 성공")
         except Exception as e:
             logger.error(f"Supabase 연결 테스트 실패: {str(e)}")
+    
+    # Firebase 초기화 시도
+    initialize_firebase_app()
 
 
 @app.get("/ping")
@@ -85,6 +114,48 @@ async def ping():
         "supabase_status": supabase_status
     }
 
+# --- 새로 추가된 pong 함수 ---
+@app.post("/pong")
+async def handle_pubsub_and_notify_fcm(request: Request):
+    """Pub/Sub 메시지를 수신하면 FCM 토픽("history_9_kr")으로 알림을 전송"""
+    try:
+        # Firebase Admin 준비
+        if not firebase_admin._apps:
+            initialized = initialize_firebase_app()
+            if not initialized:
+                raise HTTPException(status_code=500, detail="Firebase not initialized")
+
+        # 요청 페이로드(있다면) 로깅용으로만 사용
+        try:
+            payload = await request.json()
+            logger.info(f"/pong 수신 페이로드: {payload}")
+        except Exception:
+            payload = {}
+
+        # FCM 메시지 구성 및 전송 (요청 바디에 title/body가 있으면 우선 사용)
+        topic_name = "history_9_kr"
+        notif_title = (payload.get("title") if isinstance(payload, dict) else None) or "Notification from Cloud Run"
+        notif_body = (payload.get("body") if isinstance(payload, dict) else None) or "A new event has been received and processed."
+
+        message = messaging.Message(
+            notification=messaging.Notification(
+                title=notif_title,
+                body=notif_body,
+            ),
+            data={
+                "event": "pubsub_received",
+                "timestamp": datetime.utcnow().isoformat(),
+            },
+            topic=topic_name,
+        )
+        message_id = messaging.send(message)
+        logger.info(f"FCM 전송 성공. message_id={message_id}")
+        return {"status": "success", "message_id": message_id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"FCM 전송 실패: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to send FCM")
 
 @app.get("/random-images")
 async def get_random_images(

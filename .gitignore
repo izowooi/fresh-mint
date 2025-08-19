@@ -41,3 +41,4 @@ gen_image_upload_proj/.env
 prompt_extractor/uv.lock
 /prompt_extractor/output
 /prompt_extractor/__pycache__
+cloudrun_proj/honey-history-firebase-adminsdk-fbsvc-bbe16c901c.json
