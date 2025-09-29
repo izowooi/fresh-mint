@@ -1,7 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
+from webdriver_manager.chrome import ChromeDriverManager
 import os
 import requests
 from urllib.parse import urlparse
@@ -39,8 +41,51 @@ class BrowserManager:
             chrome_options.add_argument(f"--remote-debugging-port={self.port}")
             chrome_options.add_experimental_option("detach", True)
 
-            self.driver = webdriver.Chrome(options=chrome_options)
-            logger.info("새로운 Chrome 세션을 생성했습니다.")
+            try:
+                # webdriver-manager를 사용하여 자동으로 ChromeDriver 관리
+                logger.info("webdriver-manager를 사용하여 Chrome 버전에 맞는 ChromeDriver를 다운로드합니다...")
+
+                # Chrome 139 버전용 ChromeDriver를 명시적으로 다운로드
+                driver_manager = ChromeDriverManager(driver_version="139.0.7258.157")
+                driver_path = driver_manager.install()
+
+                # 다운로드된 경로가 올바른 실행 파일인지 확인하고 수정
+                import os
+                import stat
+                if driver_path.endswith('THIRD_PARTY_NOTICES.chromedriver'):
+                    # 올바른 chromedriver 실행 파일 경로로 수정
+                    correct_path = os.path.join(os.path.dirname(driver_path), 'chromedriver')
+                    if os.path.exists(correct_path):
+                        driver_path = correct_path
+                        logger.info(f"ChromeDriver 경로를 수정했습니다: {driver_path}")
+                    else:
+                        logger.error(f"올바른 ChromeDriver 실행 파일을 찾을 수 없습니다: {correct_path}")
+
+                # 실행 권한 확인 및 설정
+                if os.path.exists(driver_path):
+                    current_permissions = os.stat(driver_path).st_mode
+                    if not (current_permissions & stat.S_IXUSR):
+                        os.chmod(driver_path, current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+                        logger.info(f"ChromeDriver 실행 권한을 설정했습니다: {driver_path}")
+
+                service = Service(driver_path)
+                self.driver = webdriver.Chrome(service=service, options=chrome_options)
+                logger.info("webdriver-manager를 사용하여 새로운 Chrome 세션을 생성했습니다.")
+            except Exception as wdm_error:
+                logger.warning(f"webdriver-manager 실패: {str(wdm_error)}")
+                logger.info("기본 ChromeDriver로 재시도합니다...")
+                try:
+                    # 기본 ChromeDriver 사용 (fallback)
+                    self.driver = webdriver.Chrome(options=chrome_options)
+                    logger.info("기본 ChromeDriver로 새로운 Chrome 세션을 생성했습니다.")
+                except Exception as default_error:
+                    logger.error(f"모든 ChromeDriver 옵션 실패: {str(default_error)}")
+                    logger.error("Chrome 버전과 ChromeDriver 버전이 호환되지 않습니다.")
+                    logger.error("해결 방법:")
+                    logger.error("1. Chrome 브라우저를 최신 버전으로 업데이트하세요.")
+                    logger.error("2. 또는 'brew upgrade chromedriver'로 ChromeDriver를 업데이트하세요.")
+                    raise BrowserException(f"ChromeDriver 세션을 생성할 수 없습니다: {str(default_error)}")
+
             self.is_existing_session = False
 
         return self.driver, self.is_existing_session
